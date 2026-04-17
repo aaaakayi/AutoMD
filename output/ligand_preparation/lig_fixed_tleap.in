@@ -1,0 +1,7 @@
+source leaprc.gaff2
+loadamberparams lig_fixed.frcmod
+LIG = loadmol2 lig_fixed.mol2
+check LIG
+saveamberparm LIG lig_fixed.prmtop lig_fixed.inpcrd
+savepdb LIG lig_fixed_amber.pdb
+quit

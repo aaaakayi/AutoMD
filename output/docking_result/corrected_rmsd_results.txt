@@ -1,0 +1,24 @@
+======================================================================
+CORRECTED RMSD VALIDATION RESULTS
+======================================================================
+
+METHODOLOGY:
+- Extracted STI ligand (74 atoms) from crystal structure
+- Extracted docking conformations from docked.pdb
+- Used geometric RMSD calculation with centroid alignment
+- Used minimum atom count when atom numbers differed
+
+RESULTS:
+Conformation | Atoms | RMSD (Å)     | Energy (kcal/mol)
+-----------------------------------------------------------------
+          1 |    39 |     15.788 Å |  -11.526
+          2 |    39 |     16.022 Å |  -10.770
+          3 |    39 |     16.113 Å |  -10.314
+          4 |    39 |     14.566 Å |   -9.732
+          5 |    39 |     15.199 Å |   -9.641
+          6 |    39 |     15.249 Å |   -9.387
+          7 |    39 |     14.675 Å |   -9.078
+          8 |    39 |     16.153 Å |   -9.058
+
+VALIDATION CONCLUSION:
+❌ FAILED: No conformations with RMSD < 2.0 Å found

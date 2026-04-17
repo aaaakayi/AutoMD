@@ -1,0 +1,37 @@
+Remark line goes here
+MASS
+
+BOND
+
+ANGLE
+c2-c1-n2   59.560     170.440   same as cc-c1-n2, penalty score=  2.9
+c1-c1-ne   82.100     180.000   same as c1-c1-n2, penalty score=  2.8
+c1-ne-cf   81.260     128.000   same as c1-ne-ce, penalty score=  0.8
+c2-n2-cf   72.100     119.940   same as c2-n2-ca, penalty score=  2.2
+c1-c2-n2   95.558      69.480   Calculated with empirical approach for c1-c2-n2
+c2-c -n2   67.410     113.750   same as ce-c -ne, penalty score=  5.1
+c -c2-c1   68.850     113.810   same as c1-c2-c2, penalty score=  2.6
+c2-c1-n3   62.240     146.420   same as ce-c1-n3, penalty score=  2.2
+
+DIHE
+ne-cf-ne-c1   2    1.600       180.000           2.000      same as X -cf-nf-X , penalty score=138.0
+n2-cf-ne-c1   2    1.600       180.000           2.000      same as X -cf-nf-X , penalty score=138.0
+ne-cf-ne-ce   2    1.600       180.000           2.000      same as X -cf-nf-X , penalty score=138.0
+ne-cf-n2-c2   2    1.600       180.000           2.000      same as X -cf-nf-X , penalty score=160.5
+n2-cf-ne-ce   2    1.600       180.000           2.000      same as X -cf-nf-X , penalty score=138.0
+
+IMPROPER
+c1-c1-c2-ce         1.1          180.0         2.0          Using the default value
+c1-c2-ce-ne         1.1          180.0         2.0          Using the default value
+n2-ne-cf-ne        10.5          180.0         2.0          Same as X -n2-ca-n2, penalty score= 85.8 (use general term))
+c1-c2-c2-n2         1.1          180.0         2.0          Using the default value
+c1-c1-c2-c2         1.1          180.0         2.0          Using the default value
+c1-c1-c2-n2         1.1          180.0         2.0          Using the default value
+c2-n2-c -o         10.5          180.0         2.0          Using general improper torsional angle  X- X- c- o, penalty score=  6.0)
+c -c1-c2-c1         1.1          180.0         2.0          Using the default value
+c1-c1-c2-c1         1.1          180.0         2.0          Using the default value
+
+NONBON
+
+
+

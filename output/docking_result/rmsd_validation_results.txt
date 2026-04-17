@@ -1,0 +1,21 @@
+======================================================================
+RMSD VALIDATION RESULTS FOR DOCKING
+======================================================================
+
+METHODOLOGY:
+- Extracted STI ligand coordinates from crystal structure (1IEP.pdb)
+- Extracted 9 docking conformations from docked.pdb
+- Calculated RMSD by aligning centroids and computing root-mean-square deviation
+- Validation criterion: RMSD < 2.0 Å indicates successful reproduction of crystal pose
+
+DETAILED RESULTS:
+Conformation | Atoms | RMSD (Å)     | Energy (kcal/mol)
+-----------------------------------------------------------------
+
+======================================================================
+VALIDATION CONCLUSION:
+======================================================================
+
+❌ VALIDATION FAILED: No conformations with RMSD < 2.0 Å found
+
+No valid RMSD calculations could be performed
