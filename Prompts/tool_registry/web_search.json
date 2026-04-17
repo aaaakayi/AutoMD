@@ -1,0 +1,9 @@
+{
+  "name": "web_search",
+  "function": "web_search",
+  "description": "网页搜索工具，用于获取最新资料、软件文档和错误处理建议。",
+  "parameters": [
+    { "name": "query", "type": "str", "required": true, "description": "搜索关键词或问题描述。" },
+    { "name": "num_results", "type": "int", "required": false, "default": 5, "description": "返回结果数量上限。" }
+  ]
+}

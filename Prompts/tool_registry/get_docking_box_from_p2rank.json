@@ -1,0 +1,12 @@
+{
+  "name": "get_docking_box_from_p2rank",
+  "function": "get_docking_box_from_p2rank",
+  "description": "根据蛋白结构运行 P2Rank（可选结合 GetBox）自动识别 top-1 活性口袋并生成对接盒参数。",
+  "parameters": [
+    { "name": "protein_pdb", "type": "str", "required": true, "description": "蛋白质 PDB 文件路径。建议为预处理后的蛋白结构。" },
+    { "name": "output_dir", "type": "str", "required": false, "default": "./data/docking/p2rank", "description": "P2Rank 结果输出目录。" },
+    { "name": "use_getbox", "type": "bool", "required": false, "default": true, "description": "是否尝试使用 PyMOL + GetBox 精确计算盒子参数。" },
+    { "name": "extension", "type": "float", "required": false, "default": 8.0, "description": "GetBox 盒子扩展半径（A）。" },
+    { "name": "fallback_to_simple", "type": "bool", "required": false, "default": true, "description": "GetBox 失败时是否回退到基于 P2Rank 口袋中心和残基数的估算盒子。" }
+  ]
+}

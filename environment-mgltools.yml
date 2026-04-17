@@ -1,0 +1,14 @@
+name: mgltools
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=2.7
+  - pip
+  - numpy=1.16.6
+  - tk=8.6
+  - tcl=8.6
+  # MGLTools 自带的 prepare_receptor4.py / prepare_ligand4.py 主要依赖仓库内置的 MGLToolsPckgs。
+  # 这个环境的作用是提供 Python 2.7 运行时与基础数值/GUI 运行时，供 run_prepare_receptor4_py /
+  # run_prepare_ligand4_py 通过 conda run 调用。
+  # 非必要请不要修改环境 mgltools 名称，如有必要修改请在 run_prepare_receptor4_py 和 run_prepare_ligand4_py 中同步修改conda_env参数默认值。

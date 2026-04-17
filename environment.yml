@@ -1,0 +1,20 @@
+name: AutoMD
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - openmm>=8.1.0
+  - pdbfixer>=1.9
+  - rdkit>=2022.9.5
+  - pip:
+      - autogen-core>=0.4.0
+      - autogen-agentchat>=0.4.0
+      - autogen-ext[openai]>=0.4.0
+      - python-dotenv>=1.0.0
+      - requests>=2.31.0
+      - rcsbapi>=0.3.0
+      - gradio>=4.44.0
+
+# MGLTools 使用单独的 Python 2.7 环境，请见 environment-mgltools.yml。

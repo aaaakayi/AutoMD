@@ -1,0 +1,12 @@
+{
+  "name": "write_text_file",
+  "function": "write_text_file",
+  "description": "写入文本到指定文件，支持覆盖写入或追加写入。",
+  "parameters": [
+    { "name": "path", "type": "str", "required": true, "description": "目标文件路径（支持相对项目根目录）。" },
+    { "name": "content", "type": "str", "required": true, "description": "要写入的文本内容。" },
+    { "name": "mode", "type": "str", "required": false, "default": "w", "description": "写入模式：w 覆盖，a 追加。" },
+    { "name": "allow_outside_project", "type": "bool", "required": false, "default": false, "description": "是否允许写入项目目录外路径。" },
+    { "name": "encoding", "type": "str", "required": false, "default": "utf-8", "description": "文件写入编码。" }
+  ]
+}

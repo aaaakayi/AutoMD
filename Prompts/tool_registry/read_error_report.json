@@ -1,0 +1,11 @@
+{
+  "name": "read_error_report",
+  "function": "read_error_report",
+  "description": "读取错误报告，支持从日志文件或原始报错文本中提取关键信息。",
+  "parameters": [
+    { "name": "log_path", "type": "str", "required": false, "description": "日志文件路径。与 raw_error_text 二选一。" },
+    { "name": "raw_error_text", "type": "str", "required": false, "description": "原始报错文本。与 log_path 二选一。" },
+    { "name": "max_chars", "type": "int", "required": false, "default": 20000, "description": "返回文本最大字符数，超出会截断尾部。" },
+    { "name": "allow_outside_project", "type": "bool", "required": false, "default": false, "description": "读取 log_path 时是否允许访问项目目录外路径。" }
+  ]
+}

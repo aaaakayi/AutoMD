@@ -1,0 +1,12 @@
+{
+  "name": "run_shell_command",
+  "function": "run_shell_command",
+  "description": "执行任意 shell 命令并返回退出码、工作目录与输出。",
+  "parameters": [
+    { "name": "command", "type": "str", "required": true, "description": "要执行的 shell 命令字符串。" },
+    { "name": "cwd", "type": "str", "required": false, "description": "命令执行工作目录；相对路径默认相对项目根目录。" },
+    { "name": "timeout_seconds", "type": "int", "required": false, "default": 120, "description": "命令超时时间（秒）。" },
+    { "name": "max_output_chars", "type": "int", "required": false, "default": 20000, "description": "输出最大字符数，超出会截断尾部。" },
+    { "name": "env", "type": "dict", "required": false, "description": "附加环境变量键值对。" }
+  ]
+}

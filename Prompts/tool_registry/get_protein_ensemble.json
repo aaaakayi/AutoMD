@@ -1,0 +1,34 @@
+{
+    "name": "get_protein_ensemble",
+    "function": "get_protein_ensemble",
+    "description": "从 RCSB PDB 获取蛋白质结构的同源体集合（ensemble）。",
+    "parameters": [
+        {
+            "name": "identifier",
+            "type": "str",
+            "required": true,
+            "description": "目标蛋白质的 PDB ID（4 字母代码）或 UniProt ID。"
+        },
+        {
+            "name": "max_structures",
+            "type": "int",
+            "required": false,
+            "default": 10,
+            "description": "返回的同源体结构的最大数量。"
+        },
+        {
+            "name": "sequence_identity_threshold",
+            "type": "float",
+            "required": false,
+            "default": 100.0,
+            "description": "同源体结构的序列身份阈值（百分比；可传 0~100 或 0~1，工具内部会自动归一化）。"
+        },
+        {
+            "name": "output_dir",
+            "type": "str",
+            "required": false,
+            "default": "./data/protein_ensembles",
+            "description": "下载的蛋白质结构文件的输出目录。"
+        }
+    ]
+}

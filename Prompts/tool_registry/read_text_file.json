@@ -1,0 +1,11 @@
+{
+  "name": "read_text_file",
+  "function": "read_text_file",
+  "description": "读取文本文件内容并返回，可设置最大字符截断。",
+  "parameters": [
+    { "name": "path", "type": "str", "required": true, "description": "目标文件路径（支持相对项目根目录）。" },
+    { "name": "max_chars", "type": "int", "required": false, "default": 20000, "description": "返回内容最大字符数，超出会截断尾部。" },
+    { "name": "allow_outside_project", "type": "bool", "required": false, "default": false, "description": "是否允许读取项目目录外文件。" },
+    { "name": "encoding", "type": "str", "required": false, "default": "utf-8", "description": "文件读取编码。" }
+  ]
+}

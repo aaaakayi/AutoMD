@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "description": "AutoMD 工具注册索引。每个工具的详细元数据拆分到 Prompts/tool_registry/ 下的单独文件中，便于按工具维护。",
+  "categories": [
+    {
+      "name": "protein_preparation",
+      "description": "蛋白质下载与预处理相关工具。",
+      "tools": [
+        { "include": "tool_registry/fetch_pdb.json" },
+        { "include": "tool_registry/prepare_pure_protein.json" },
+        { "include": "tool_registry/run_prepare_receptor4_py.json" },
+        { "include": "tool_registry/get_protein_ensemble.json" }
+      ]
+    },
+    {
+      "name": "ligand_preparation",
+      "description": "配体预处理的相关工具，过于MD中分子配体的处理所需要的一切文件都可以通过它生成",
+      "tools": [
+        { "include": "tool_registry/prepare_ligand_amber_route.json" }
+      ]
+    },
+    {
+      "name": "docking",
+      "description": "P2Rank/GetBox 口袋识别与对接配置工具。",
+      "tools": [
+        { "include": "tool_registry/get_docking_box_from_p2rank.json" },
+        { "include": "tool_registry/dock.json" }
+      ]
+    },
+    {
+      "name": "environment_and_utility",
+      "description": "环境安装、搜索与文件/日志操作工具。",
+      "tools": [
+        { "include": "tool_registry/setup_environment.json" },
+        { "include": "tool_registry/web_search.json" },
+        { "include": "tool_registry/read_text_file.json" },
+        { "include": "tool_registry/write_text_file.json" },
+        { "include": "tool_registry/run_shell_command.json" },
+        { "include": "tool_registry/read_error_report.json" }
+      ]
+    }
+  ]
+}

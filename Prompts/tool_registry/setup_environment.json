@@ -1,0 +1,10 @@
+{
+  "name": "setup_environment",
+  "function": "setup_environment",
+  "description": "安装或补齐运行所需科学计算依赖，优先支持 conda 与 pip。",
+  "parameters": [
+    { "name": "packages", "type": "list[str]", "required": false, "description": "待安装包列表。必须先完成诊断并确认缺失依赖后再显式填写，不要默认安装。" },
+    { "name": "method", "type": "str", "required": false, "default": "conda", "description": "安装方式，可选 conda 或 pip。" },
+    { "name": "target_env", "type": "str", "required": false, "description": "conda 目标环境名，不传时使用当前激活环境。" }
+  ]
+}

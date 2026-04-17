@@ -1,0 +1,9 @@
+{
+  "name": "fetch_pdb",
+  "function": "fetch_pdb",
+  "description": "从 RCSB PDB 下载结构文件到本地目录，并在文件已存在时跳过重复下载。",
+  "parameters": [
+    { "name": "pdb_id", "type": "str", "required": true, "description": "4 字符 PDB 编号，例如 1ake。" },
+    { "name": "output_dir", "type": "str", "required": false, "default": "./data/pdb", "description": "下载文件保存目录。" }
+  ]
+}

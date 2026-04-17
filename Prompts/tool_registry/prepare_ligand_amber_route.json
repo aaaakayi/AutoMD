@@ -1,0 +1,124 @@
+{
+  "name": "prepare_ligand_amber_route",
+  "function": "prepare_ligand_amber_route",
+  "description": "【鲁棒配体参数化工具】使用 AmberTools/Antechamber 路线为小分子配体生成 GAFF 参数与电荷，并输出对接与 MD 所需文件。支持 SMILES、PDB、MOL2、SDF 等输入，并在失败时自动尝试输入格式回退和电荷方法回退，减少 tleap/antechamber 的偶发失败。\n\n核心能力：\n- 多输入源：input_smiles / input_pdb / input_file\n- 多输入格式：可显式指定 input_format，或按扩展名推断\n- 鲁棒回退：robust_input=true 时，自动尝试 Open Babel 转换与 charge_method 回退\n- 兼容高级参数：支持 antechamber_extra_args 与 antechamber_kwargs\n- 中间文件留存：支持将 antechamber 生成的 sqm.in/sqm.out 等中间文件保存到指定目录\n\n依赖：AmberTools（antechamber/parmchk2/tleap），PDBQT 生成建议安装 MGLTools（失败会回退 Open Babel），GROMACS 输出需要 acpype。",
+  "parameters": [
+    {
+      "name": "input_smiles",
+      "type": "str",
+      "required": false,
+      "description": "配体的 SMILES 字符串。与 input_pdb 二选一，必须提供其中一个。如果使用此参数，请将 input_pdb 留空字符串。"
+    },
+    {
+      "name": "input_pdb",
+      "type": "str",
+      "required": false,
+      "description": "配体的 PDB 文件路径（兼容旧参数）。与 input_smiles/input_file 三选一。"
+    },
+    {
+      "name": "input_file",
+      "type": "str",
+      "required": false,
+      "description": "通用输入文件路径，支持 PDB/MOL2/SDF/MDL/AC 等（推荐优先使用）。"
+    },
+    {
+      "name": "input_format",
+      "type": "str",
+      "required": false,
+      "description": "输入文件格式（如 pdb/mol2/sdf/mdl/ac）。为空时按扩展名自动推断。"
+    },
+    {
+      "name": "output_dir",
+      "type": "str",
+      "required": false,
+      "default": ".项目根目录/output/ligand_output",
+      "description": "所有输出文件的保存目录。会自动创建。"
+    },
+    {
+      "name": "net_charge",
+      "type": "int",
+      "required": false,
+      "default": 0,
+      "description": "分子的净电荷（整数）。若不确定可先设为 0；SMILES 输入时代码可自动推断。"
+    },
+    {
+      "name": "residue_name",
+      "type": "str",
+      "required": false,
+      "default": "LIG",
+      "description": "配体在输出文件中的残基名称（3-4 个字符）。一般保持默认 LIG 即可。"
+    },
+    {
+      "name": "charge_method",
+      "type": "str",
+      "required": false,
+      "default": "bcc",
+      "description": "电荷方法（如 bcc/gas/resp）。推荐 bcc；robust_input=true 时失败会自动追加 gas 重试。"
+    },
+    {
+      "name": "force_field",
+      "type": "str",
+      "required": false,
+      "default": "gaff2",
+      "description": "Antechamber/parmchk2 使用的力场类型（gaff 或 gaff2）。"
+    },
+    {
+      "name": "antechamber_extra_args",
+      "type": "list",
+      "required": false,
+      "description": "传给 antechamber 的额外参数列表，例如 ['-m','1']。"
+    },
+    {
+      "name": "antechamber_kwargs",
+      "type": "dict",
+      "required": false,
+      "description": "传给 antechamber 的键值参数，会转换为 -key value 形式，例如 {'j':4}。"
+    },
+    {
+      "name": "antechamber_intermediate_dir",
+      "type": "str",
+      "required": false,
+      "description": "指定 antechamber 中间文件目录。会按尝试轮次创建子目录，保存 sqm.in/sqm.out 等中间文件。强烈建议输出到项目根目录下的temp文件夹下。"
+    },
+    {
+      "name": "robust_input",
+      "type": "bool",
+      "required": false,
+      "default": true,
+      "description": "是否启用鲁棒回退（输入格式转换与多电荷方法重试）。"
+    },
+    {
+      "name": "fallback_charge_methods",
+      "type": "list",
+      "required": false,
+      "description": "可选，失败时额外尝试的电荷方法列表（如 ['gas']）。"
+    },
+    {
+      "name": "generate_pdbqt",
+      "type": "bool",
+      "required": false,
+      "default": true,
+      "description": "是否生成用于 AutoDock Vina 对接的 PDBQT 文件。强烈建议保留为 true。"
+    },
+    {
+      "name": "generate_md_files",
+      "type": "bool",
+      "required": false,
+      "default": true,
+      "description": "是否生成 AMBER 格式的拓扑文件（.prmtop）和坐标文件（.inpcrd），用于 AMBER 或 OpenMM 分子动力学模拟。如果仅需对接，可设为 false 以节省时间。"
+    },
+    {
+      "name": "generate_gmx_files",
+      "type": "bool",
+      "required": false,
+      "default": false,
+      "description": "是否额外生成 GROMACS 格式的拓扑文件（.top, .itp, .gro）。需要安装 acpype。"
+    },
+    {
+      "name": "protein_pdb",
+      "type": "str",
+      "required": false,
+      "description": "【可选】蛋白质 PDB 文件路径。如果提供，生成的 AMBER 拓扑将包含蛋白质+配体复合物；否则只生成配体的拓扑。不需要时请留空字符串。"
+    }
+  ]
+}

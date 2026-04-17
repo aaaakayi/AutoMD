@@ -1,0 +1,20 @@
+{
+  "name": "prepare_pure_protein",
+  "function": "prepare_pure_protein",
+  "description": "纯蛋白 MD 预处理工具。自动下载指定 PDB ID 的结构，调用 pdb4amber 清洗并加氢，再用 tleap 构建加水和中和后的 Amber 体系，输出最终的 prmtop 和 inpcrd 文件。",
+  "parameters": [
+    {
+      "name": "pdb_id",
+      "type": "str",
+      "required": true,
+      "description": "RCSB PDB 的四位结构编号，例如 1AKE。"
+    },
+    {
+      "name": "output_root",
+      "type": "str",
+      "required": false,
+      "default": "./output",
+      "description": "输出根目录，脚本会在其中创建 pdb、prepared、md 子目录。"
+    }
+  ]
+}

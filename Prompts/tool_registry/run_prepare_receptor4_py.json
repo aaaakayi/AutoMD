@@ -1,0 +1,9 @@
+{
+  "name": "run_prepare_receptor4_py",
+  "function": "run_prepare_receptor4_py",
+  "description": "使用 MGLTools 的 prepare_receptor4.py 脚本将蛋白质 PDB 转换为 PDBQT 格式",
+  "parameters": [
+    { "name": "input_pdb", "type": "str", "required": true, "description": "输入的 PDB 文件路径。" },
+    { "name": "output_pdbqt", "type": "str", "required": true, "description": "输出的 PDBQT 文件路径。" }
+  ]
+}
