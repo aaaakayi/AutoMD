@@ -12,12 +12,12 @@
 项目自定义了[env_setup_agent.py](./Agents/env_setup_agent.py),[protein_pre_agent.py](./Agents/protein_pre_agent.py),[ligand_pre_agent.py](./Agents/ligand_pre_agent.py),[dock_agent.py](./Agents/dock_agent.py),[memory_agent.py](./Agents/memory_agent.py),以及[main.py](./main.py)中定义的Coordinator
 
 ### 2.Agent功能
-- 1. [env_setup_agent.py](./Agents/env_setup_agent.py) : 解决项目环境依赖问题。
-- 2. [protein_pre_agent.py](./Agents/protein_pre_agent.py) : 能生成蛋白质在MD过程中所需要的一切文件。
-- 3. [ligand_pre_agent.py](./Agents/ligand_pre_agent.py) : 能生成配体小分子在MD过程中所需要的一切文件。
-- 4. [dock_agent.py](./Agents/dock_agent.py) : 通过p2rank预测口袋以及AutoDock vina进行对接。
-- 5. [memory_agent.py](./Agents/memory_agent.py) : 能够维护项目目前进度文档的智能体。
-- 6. [main.py](./main.py) : 定义了GroupChatOrchestrator使各智能体能根据Coordinator进行发言。
+-  [env_setup_agent.py](./Agents/env_setup_agent.py) : 解决项目环境依赖问题。
+-  [protein_pre_agent.py](./Agents/protein_pre_agent.py) : 能生成蛋白质在MD过程中所需要的一切文件。
+-  [ligand_pre_agent.py](./Agents/ligand_pre_agent.py) : 能生成配体小分子在MD过程中所需要的一切文件。
+-  [dock_agent.py](./Agents/dock_agent.py) : 通过p2rank预测口袋以及AutoDock vina进行对接。
+-  [memory_agent.py](./Agents/memory_agent.py) : 能够维护项目目前进度文档的智能体。
+-  [main.py](./main.py) : 定义了GroupChatOrchestrator使各智能体能根据Coordinator进行发言。
 
 ### 3. 具体技术实现
 
