@@ -1,9 +1,0 @@
-Info: acdoctor mode is on: check and diagnose problems in the input file.
-Info: The atom type is set to gaff2; the options available to the -at flag are
-      gaff, gaff2, amber, bcc, abcg2, and sybyl.
-
--- Check Format for mol2 File --
-   Status: pass
-Info: Total number of electrons: 262; net charge: 0
-
-Running: /home/aumu/miniconda3/envs/AutoMD/bin/sqm -O -i sqm.in -o sqm.out

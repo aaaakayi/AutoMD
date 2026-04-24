@@ -1,6 +1,0 @@
-source leaprc.gaff2
-loadamberparams sti_manual.frcmod
-STI = loadmol2 sti_manual_gas.mol2
-check STI
-saveamberparm STI sti.prmtop sti.inpcrd
-quit

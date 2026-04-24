@@ -88,7 +88,6 @@ def _run_pipeline_worker(task: str, user_note: str) -> None:
                 reply = _USER_REPLY_QUEUE.get(timeout=0.2)
                 text = (reply or "").strip()
                 if text:
-                    _LOG_QUEUE.put(("log", f"[user] 已提交输入: {text}"))
                     return text
             except queue.Empty:
                 continue

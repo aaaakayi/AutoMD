@@ -1,6 +1,0 @@
-=== Docking Conformation RMSD Results ===
-Conformation | RMSD (Å) | Energy (kcal/mol)
----------------------------------------------
-
-============================================================
-❌ FAILURE: No conformations with RMSD < 2.0 Å found

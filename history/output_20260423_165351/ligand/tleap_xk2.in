@@ -1,0 +1,6 @@
+source leaprc.gaff2
+LIG = loadmol2 ./output/ligand/xk2.mol2
+loadamberparams ./output/ligand/xk2.frcmod
+check LIG
+saveamberparm LIG ./output/ligand/xk2.prmtop ./output/ligand/xk2.inpcrd
+quit

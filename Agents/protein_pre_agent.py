@@ -35,7 +35,8 @@ PROTEIN_ALLOWED_FUNCTIONS = (
     "write_text_file",
     "run_shell_command",
     "read_error_report",
-    "run_prepare_receptor4_py"
+    "run_prepare_receptor4_py",
+    "get_protein_ensemble"
 )
 
 

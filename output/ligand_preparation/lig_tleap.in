@@ -1,7 +1,0 @@
-source leaprc.gaff2
-loadamberparams lig.frcmod
-LIG = loadmol2 lig.mol2
-check LIG
-saveamberparm LIG lig.prmtop lig.inpcrd
-savepdb LIG lig_amber.pdb
-quit

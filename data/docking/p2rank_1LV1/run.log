@@ -1,0 +1,39 @@
+[INFO] Writable - predicting pockets for proteins from dataset [1LV1_clean.pdb]
+[INFO] PredictPocketsRoutine - outdir: /mnt/d/PycharmProjects/AutoMD[root]/data/docking/p2rank_1LV1
+[INFO] Model - Loading model from directory (v3 format): /mnt/d/PycharmProjects/AutoMD[root]/dock_tools/P2Rank/p2rank/distro/models/default
+[INFO] FeatureSetup - effectively enabled features: [chem, volsite, protrusion, bfactor, atom_table]
+[INFO] Dataset - processing dataset [1LV1_clean.pdb] using 9 threads
+[INFO] Dataset - 
+------------------------------------------------------------------------------------------------------------------------
+processing [1LV1_clean.pdb] (1/1)
+------------------------------------------------------------------------------------------------------------------------
+
+[INFO] Writable - processing [1LV1_clean.pdb] (1/1)
+[INFO] Protein - loading protein [/mnt/d/PycharmProjects/AutoMD[root]/data/protein_ensembles/1HVR_ensemble/cleaned/1LV1_clean.pdb]
+[INFO] PdbUtils - loading file [/mnt/d/PycharmProjects/AutoMD[root]/data/protein_ensembles/1HVR_ensemble/cleaned/1LV1_clean.pdb]
+[INFO] Struct - all groups in chain A: 99
+[INFO] Struct - all groups in chain A: 99
+[INFO] Struct - all groups in chain A: 99
+[INFO] Struct - 99 groups in chain A
+[INFO] Struct - all groups in chain A: 99
+[INFO] Struct - 99 groups in chain A
+[WARN] Protein - Two protein chains with the same authorId: A(id:B)(99) A(99)
+[INFO] Protein - structure atoms: 1513
+[INFO] Protein - protein   atoms: 1491
+[INFO] Protein - ignoring ligands
+[INFO] FeatureSetup - effectively enabled features: [chem, volsite, protrusion, bfactor, atom_table]
+[INFO] Protein - SAS points: 3080
+[INFO] Protein - exposed protein atoms: 1008 of 1491
+[INFO] PocketPredictor - PREDICTING POCKETS.... ====================================
+[INFO] PocketPredictor - SAS POINTS: 3080
+[INFO] SLinkClustererV2 - clusters (1): sizes [38]
+[INFO] SLinkClustererV2 - clusters together: 38 / 38
+[INFO] SingleLinkageClustering - LIGANDABLE POINTS: 38
+[INFO] SingleLinkageClustering - CLUSTERS: 1
+[INFO] SingleLinkageClustering - FILTERED CLUSTERS: 1
+[INFO] PocketPredictor - pocket 1 -  surf_atoms:  46   points:  38   score:   13.4
+[INFO] PredictionVisualizer - copying [/mnt/d/PycharmProjects/AutoMD[root]/data/protein_ensembles/1HVR_ensemble/cleaned/1LV1_clean.pdb] to [/mnt/d/PycharmProjects/AutoMD[root]/data/docking/p2rank_1LV1/visualizations/data/1LV1_clean.pdb]
+[INFO] Writable - predicting pockets finished in 0 hours 0 minutes 4.644 seconds
+[INFO] Writable - results saved to directory [/mnt/d/PycharmProjects/AutoMD[root]/data/docking/p2rank_1LV1]
+[INFO] Console - 
+[INFO] Console - Finished successfully in 0 hours 0 minutes 6.077 seconds.

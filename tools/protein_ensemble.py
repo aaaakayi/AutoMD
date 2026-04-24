@@ -1,9 +1,25 @@
 from typing import List
 import requests
-from rcsbapi.search import SeqSimilarityQuery
 from tools.protein import fetch_pdb
 
 RCSB_DATA_API_BASE = "https://data.rcsb.org/rest/v1/core"
+
+
+def _load_seq_similarity_query():
+    """Load SeqSimilarityQuery lazily to avoid hard dependency at app startup."""
+    try:
+        from rcsbsearchapi.search import SeqSimilarityQuery as QueryClass  # type: ignore
+        return QueryClass
+    except Exception:
+        pass
+
+    try:
+        from rcsbapi.search import SeqSimilarityQuery as QueryClass  # type: ignore
+        return QueryClass
+    except Exception as exc:
+        raise ImportError(
+            "SeqSimilarityQuery 不可用。请安装: pip install rcsbsearchapi"
+        ) from exc
 
 def _is_pdb_id(identifier: str) -> bool:
     """判断是否为 PDB ID（4 字符，首字符数字）"""
@@ -100,7 +116,8 @@ def get_pdb_ensemble(
 
     # 使用 SeqSimilarityQuery 搜索相似结构
     try:
-        query = SeqSimilarityQuery(
+        seq_similarity_query = _load_seq_similarity_query()
+        query = seq_similarity_query(
             value=ref_sequence,
             identity_cutoff=identity_cutoff,
             evalue_cutoff=1  # 可选的 E 值阈值，默认 10

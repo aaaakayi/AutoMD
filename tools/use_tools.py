@@ -12,6 +12,7 @@ from tools.system_tools import read_text_file, write_text_file, run_shell_comman
 from tools.strict_wrappers import STRICT_TOOL_MAP
 from tools.protein import fetch_pdb,prepare_pure_protein,run_prepare_receptor4_py
 from tools.protein_ensemble import get_protein_ensemble
+from tools.search_from_RAG import search_from_rag
 
 
 TOOL_MAP = {
@@ -28,6 +29,7 @@ TOOL_MAP = {
     "read_error_report": read_error_report,
     "run_prepare_receptor4_py" : run_prepare_receptor4_py,
     "get_protein_ensemble": get_protein_ensemble,
+    "search_from_rag": search_from_rag,
 }
 
 

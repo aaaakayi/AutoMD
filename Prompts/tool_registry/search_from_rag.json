@@ -1,0 +1,26 @@
+{
+    "name": "search_from_rag",
+    "function": "search_from_rag",
+    "description": "基于 RAG（Retrieval-Augmented Generation）的上下文检索工具，用于从预先构建的 chunk 语料库中检索与当前任务相关的上下文信息，辅助 LLM 生成更准确和相关的响应。",
+    "parameters": [
+        {
+            "name": "query",
+            "type": "str",
+            "required": true,
+            "description": "用于检索的查询字符串，通常是当前任务的描述、问题或相关关键词。"
+        },
+        {
+            "name": "top_k",
+            "type": "int",
+            "required": false,
+            "default": 5,
+            "description": "返回的最相关上下文块的数量。"
+        },
+        {
+            "name": "chunk_types",
+            "type": "str",
+            "required": false,
+            "description": "要检索的 chunk 类型列表。可从task_flow, tool_param, outcome_summary中选取，task_flow 代表任务流程相关的上下文，tool_param 代表工具参数相关的上下文，outcome_summary 代表结果总结相关的上下文。默认检索所有类型。"
+        }
+    ]
+}

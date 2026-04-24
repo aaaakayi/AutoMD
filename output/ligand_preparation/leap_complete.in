@@ -1,7 +1,0 @@
-source leaprc.gaff2
-sti = loadmol2 sti.mol2
-check sti
-loadamberparams sti_complete.frcmod
-saveamberparm sti sti.prmtop sti.inpcrd
-savepdb sti sti_amber.pdb
-quit

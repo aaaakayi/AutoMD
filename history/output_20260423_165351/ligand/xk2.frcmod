@@ -1,0 +1,23 @@
+Remark line goes here
+MASS
+
+BOND
+
+ANGLE
+c1-n -c2   68.100     118.880   same as c1-n -ca, penalty score=  2.8
+c2-c1-n    58.345     179.665   Calculated with empirical approach for c2-c1-n
+
+DIHE
+
+IMPROPER
+n -n -c2-o          1.1          180.0         2.0          Using the default value
+c1-c2-n -c2         1.1          180.0         2.0          Using the default value
+c1-c2-c2-n          1.1          180.0         2.0          Using the default value
+c2-c2-c2-o          1.1          180.0         2.0          Using the default value
+c1-c1-c2-c1         1.1          180.0         2.0          Using the default value
+c1-c1-c2-c2         1.1          180.0         2.0          Using the default value
+
+NONBON
+
+
+

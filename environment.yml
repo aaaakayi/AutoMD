@@ -5,16 +5,23 @@ channels:
 dependencies:
   - python=3.10
   - pip
+  - certifi>=2024.2.2
+  - fastapi>=0.115.0
   - openmm>=8.1.0
   - pdbfixer>=1.9
+  - pydantic>=2.10,<3
   - rdkit>=2022.9.5
+  - starlette>=0.41.0
   - pip:
       - autogen-core>=0.4.0
       - autogen-agentchat>=0.4.0
       - autogen-ext[openai]>=0.4.0
+      - chromadb>=0.5.5
+      - sentence-transformers>=3.0.1
+      - rcsbsearchapi>=2.0.0
       - python-dotenv>=1.0.0
       - requests>=2.31.0
-      - rcsbapi>=0.3.0
       - gradio>=4.44.0
 
 # MGLTools 使用单独的 Python 2.7 环境，请见 environment-mgltools.yml。
+# RAG 与 UI 目前建议保留在同一个 AutoMD 环境中，便于 ui_app.py / main.py 直接共享依赖。
