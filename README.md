@@ -1,6 +1,9 @@
 # AutoMD 智能体实现分子动力学模拟
 
 ---
+## 实际效果图
+
+![实际运行界面](ui.png)
 
 ## 技术路线：
 
@@ -202,8 +205,5 @@ https://wwaws.lanzouq.com/i6Q853o13cyd
 解压到./memory/RAG/下即可。
 
 [Agents_readme](./Agents_readme/)作为后续静态知识库的demo，目前未接入主流程
-
-实际运行界面：
-![实际运行界面](ui.png)
 
 
