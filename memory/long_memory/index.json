@@ -1,0 +1,29 @@
+{
+  "updated_at": "2026-04-24T17:02:39",
+  "runs": [
+    {
+      "run_id": "20260423_161239",
+      "raw_task": "帮我根据1HVR获得相关的蛋白质系综文件，推荐优先使用工具get_protein_ensemble来获取，sequence_identity_threshold参数建议90以上。",
+      "overall_status": "unknown",
+      "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260423_161239.json",
+      "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260423_161239.jsonl",
+      "updated_at": "2026-04-23T16:48:06"
+    },
+    {
+      "run_id": "20260423_165351",
+      "raw_task": "你再帮我根据1HVR获得相关的蛋白质系综文件，你先反思你上个工作出现的问题。现在我的要求是：获取1HVR的蛋白质系综，把这些系综用简单的方法生成pdbqt文件（其它的文件不需要），这些文件与配体：CC(C)(C)NC(=O)C(CC1CCCCC1)NC(=O)C(CC2=CNC3=C2C=CC=C3)NC(=O)CN4CCCC4进行对接，然后告诉我对接效果最好的蛋白质文件是哪个。这是标准的根据蛋白质系综进行对接的工作流程，为了节省资源，处理蛋白质的时候只需要能够进行对接的文件，其它的不需要。务必不要过度执行！务必不要仅使用一个蛋白质文件进行对接！",
+      "overall_status": "unknown",
+      "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260423_165351.json",
+      "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260423_165351.jsonl",
+      "updated_at": "2026-04-23T17:18:50"
+    },
+    {
+      "run_id": "20260424_163926",
+      "raw_task": "帮我对HIV-1蛋白酶（PDB ID: **1HVR**）与抑制剂Indinavir（商品名：MK-639，SMILES如下）进行交叉对接。\n**配体 SMILES**（Indinavir / MK-639）：\nCC(C)(C)NC(=O)C(CC1CCCCC1)NC(=O)C(CC2=CNC3=C2C=CC=C3)NC(=O)CN4CCCC4\n1HVR不一定能和配体完美对接，你需要获取1HVR的同源系综蛋白质，验证这些同源系综蛋白质中哪个与配体对接效果最好。\n请你不要一开始就调用set_env来安装一大堆依赖，很多依赖我已经安装好了并且有的工具封装给了相关工具，请你别上来就安装一大堆依赖！",
+      "overall_status": "partial",
+      "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260424_163926.json",
+      "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260424_163926.jsonl",
+      "updated_at": "2026-04-24T17:02:39"
+    }
+  ]
+}

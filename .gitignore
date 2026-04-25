@@ -1,8 +1,6 @@
-# dock_tools/
 __pycache__/
 *.pyc
-output/temp/
-temp/
-memory/
 dock_tools/
 reduce_info.log
+memory/RAG/local_sbert_model/
+.env/
