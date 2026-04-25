@@ -1,9 +1,0 @@
-
-source leaprc.protein.ff19SB
-source leaprc.water.tip3p
-prot = loadpdb /mnt/d/PycharmProjects/AutoMD[root]/output/prepared/1HVR_protein_only.pdb
-solvateBox prot TIP3PBOX 10.0
-addions prot Na+ 0
-
-saveamberparm prot complex.prmtop complex.inpcrd
-quit

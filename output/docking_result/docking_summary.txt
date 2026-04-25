@@ -1,0 +1,35 @@
+========================================
+    AutoDock Vina 对接结果摘要
+    1IEP 蛋白 + 配体对接
+========================================
+
+[对接参数]
+  蛋白文件: ./output/protein_preparation/1IEP_protein.pdbqt
+  配体文件: ./output/ligand_preparation/lig.pdbqt
+  对接盒子中心 (center_x, center_y, center_z): (14.05, 99.76, 53.78) Å
+  盒子尺寸 (size_x, size_y, size_z): 34.5 × 34.5 × 34.5 Å³
+  穷举度 (exhaustiveness): 8
+  输出构象数 (num_modes): 9
+  能量范围 (energy_range): 3.0 kcal/mol
+
+[对接结果 - 按结合能排序]
+  Mode 1:  -11.061 kcal/mol  (最佳构象)
+  Mode 2:   -9.230 kcal/mol  (RMSD=9.060, 模式差=16.123)
+  Mode 3:   -9.147 kcal/mol  (RMSD=15.484, 模式差=20.320)
+  Mode 4:   -9.070 kcal/mol  (RMSD=3.452, 模式差=13.502)
+  Mode 5:   -9.051 kcal/mol  (RMSD=1.811, 模式差=3.730)
+  Mode 6:   -8.678 kcal/mol  (RMSD=9.289, 模式差=16.563)
+  Mode 7:   -8.453 kcal/mol  (RMSD=5.697, 模式差=11.851)
+  Mode 8:   -8.341 kcal/mol  (RMSD=4.941, 模式差=13.256)
+  Mode 9:   -8.328 kcal/mol  (RMSD=15.622, 模式差=20.699)
+
+[结果评估]
+  ✅ 最佳结合能: -11.061 kcal/mol (远低于-7.0活性阈值)
+  ✅ 所有9个构象均为负值结合能
+  ✅ 产生多个合理构象，Mode 1 远优于其余构象
+  ✅ 结合能梯度合理 (从-11.06到-8.33渐进式增加)
+
+[输出文件]
+  主结果: ./output/docking_result/docked.pdbqt (36,810 字节, 9构象)
+  PDB格式: ./output/docking_result/docked.pdb (61,672 字节, 892行)
+  本摘要: ./output/docking_result/docking_summary.txt

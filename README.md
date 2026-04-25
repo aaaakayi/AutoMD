@@ -19,6 +19,25 @@
 -  [memory_agent.py](./Agents/memory_agent.py) : 能够维护项目目前进度文档的智能体。
 -  [main.py](./main.py) : 定义了GroupChatOrchestrator使各智能体能根据Coordinator进行发言。
 
+### 3.记忆功能
+-  [memory_agent.py](./Agents/memory_agent.py) 通过维护一个项目目前进度文档实现任务内的短期记忆
+每次独立的任务运行完成后，都会在[index.json](./memory/long_memory/index.json)下生成任务级别的记录。
+在[events](./memory/long_memory/events/)下生成完整的事件回放，在[runs](./memory/long_memory/runs/)下生成基于[events](./memory/long_memory/events/)下事件回放的总结，最终的chunk来源即是[runs](./memory/long_memory/runs/)下的JSON文件。
+每一个任务都会生成唯一的run_id，通过调用[creat_RAG.py](./memory/creat_RAG.py)脚本将对于的run_id切分chunk并且存入向量库，同时还能将对应的run_id任务记录从全流程中删除。
+```
+Build long-memory chunks and optionally update local vector DB for RAG.
+
+Usage:
+1) Update one run's chunks:
+    python memory/creat_RAG.py 20260418_154035
+2) Update one run + rebuild vector index:
+    python memory/creat_RAG.py 20260418_154035 --build-vector --rebuild
+3) Delete one run from index/runs/events/chunks/vector DB:
+    python memory/creat_RAG.py 20260418_154035 --delete-run
+```
+RAG调用封装成工具仅提供给[main.py](./main.py)中定义的Coordinator，对应约束详细见Coordinator对应的Prompt：[Organizer.txt](./Prompts/Organizer.txt)
+
+
 ### 3. 具体技术实现
 
 #### 3.1 protein_pre_agent（对应 tools/protein.py）
@@ -171,3 +190,9 @@ python ui_app.py
 
 ### 6. 补充
 [dock_tools](./dock_tools/)保存了本项目用到的外部项目。
+
+[Agents_readme](./Agents_readme/)作为后续静态知识库的demo，目前未接入主流程
+
+![实际运行界面](ui.png)
+
+

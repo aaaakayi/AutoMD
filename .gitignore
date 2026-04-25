@@ -4,3 +4,5 @@ dock_tools/
 reduce_info.log
 memory/RAG/local_sbert_model/
 .env/
+temp/
+

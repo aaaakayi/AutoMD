@@ -1,4 +1,4 @@
-log started: Fri Apr 24 16:12:20 2026
+log started: Sat Apr 25 14:54:24 2026
 
 Log file: ./leap.log
 >> #
@@ -426,54 +426,91 @@ Reading title:
 Li/Merz ion parameters of divalent to tetravalent ions for TIP3P water model (12-6 normal usage set)
 >> 
 > 
-> prot = loadpdb /mnt/d/PycharmProjects/AutoMD[root]/output/prepared/1HVR_protein_only.pdb
-Loading PDB file: /mnt/d/PycharmProjects/AutoMD[root]/output/prepared/1HVR_protein_only.pdb
+> prot = loadpdb /mnt/d/PycharmProjects/AutoMD[root]/output/prepared/1IEP_protein_only.pdb
+Loading PDB file: /mnt/d/PycharmProjects/AutoMD[root]/output/prepared/1IEP_protein_only.pdb
 Matching PDB residue names to LEaP variables.
-Mapped residue PRO, term: Terminal/beginning, seq. number: 0 to: NPRO.
-Mapped residue PHE, term: Terminal/last, seq. number: 97 to: CPHE.
-Mapped residue PRO, term: Terminal/beginning, seq. number: 98 to: NPRO.
-Mapped residue PHE, term: Terminal/last, seq. number: 195 to: CPHE.
-  total atoms in file: 3098
+Mapped residue MET, term: Terminal/beginning, seq. number: 0 to: NMET.
+Mapped residue GLN, term: Terminal/last, seq. number: 273 to: CGLN.
+Mapped residue MET, term: Terminal/beginning, seq. number: 274 to: NMET.
+Mapped residue GLN, term: Terminal/last, seq. number: 547 to: CGLN.
+  Added missing heavy atom: .R<CGLN 274>.A<OXT 18>
+  Added missing heavy atom: .R<CGLN 548>.A<OXT 18>
+  total atoms in file: 8817
+  Leap added 5 missing atoms according to residue templates:
+       2 Heavy
+       3 H / lone pairs
 > solvateBox prot TIP3PBOX 10.0
-  Solute vdw bounding box:              45.327 42.589 57.766
-  Total bounding box for atom centers:  65.327 62.589 77.766
+  Solute vdw bounding box:              60.078 94.572 95.874
+  Total bounding box for atom centers:  80.078 114.572 115.874
   Solvent unit box:                     18.774 18.774 18.774
-The number of boxes:  x= 4  y= 4  z= 5
-  Total vdw box size:                   68.524 65.919 80.771 angstroms.
-  Volume: 364842.661 A^3 
-  Total mass 174949.768 amu,  Density 0.796 g/cc
-  Added 8529 residues.
+The number of boxes:  x= 5  y= 7  z= 7
+  Total vdw box size:                   83.105 117.215 119.269 angstroms.
+  Volume: 1161811.673 A^3 
+  Total mass 598067.796 amu,  Density 0.855 g/cc
+  Added 29675 residues.
 > addions prot Na+ 0
+18 Na+ ions required to neutralize.
+Adding 18 counter ions to "prot" using 1A grid
+Total solute charge:  -18.00  Max atom radius:   1.98
+Grid extends from solute vdw + 3.65  to  9.64
+Box:
+   enclosing:  -38.10 -55.40 -56.09   37.92 55.66 56.08
+   sized:			      89.90 72.60 71.91
+   edge:        128.00
+Resolution:      1.00 Angstrom.
+Tree depth: 7
+Volume =  5.71% of box, grid points 119742
+Solvent present: replacing closest with ion
+	 when steric overlaps occur
+Calculating grid charges
+(Replacing solvent molecule)
+Placed Na+ in prot at (25.27, 17.70, 30.07).
+(Replacing solvent molecule)
+Placed Na+ in prot at (11.80, -3.20, 1.21).
+(Replacing solvent molecule)
+Placed Na+ in prot at (11.97, -22.48, 13.71).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-11.26, -2.08, 2.90).
+(Replacing solvent molecule)
+Placed Na+ in prot at (17.76, 13.15, 35.18).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-18.47, 14.15, 23.68).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-12.67, -33.93, 4.19).
+(Replacing solvent molecule)
+Placed Na+ in prot at (18.72, 27.92, 8.91).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-29.39, -17.10, -8.91).
+(Replacing solvent molecule)
+Placed Na+ in prot at (22.59, -16.47, -35.03).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-9.17, -2.89, -24.67).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-1.14, -27.09, 17.67).
+(Replacing solvent molecule)
+Placed Na+ in prot at (5.41, 26.31, 4.24).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-19.59, -35.89, -14.39).
+(Replacing solvent molecule)
+Placed Na+ in prot at (24.42, -7.34, 18.94).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-24.87, 26.52, 23.76).
+(Replacing solvent molecule)
+Placed Na+ in prot at (12.60, -29.52, -47.48).
+(Replacing solvent molecule)
+Placed Na+ in prot at (-20.84, -10.76, -27.29).
 
-/home/aumu/miniconda3/envs/AutoMD/bin/teLeap: Warning!
-addIons: 1st Ion & target unit have charges of the same sign:
-     unit charge = 4; ion1 charge = 1;
-     can't neutralize.
+Done adding ions.
 > 
 > saveamberparm prot complex.prmtop complex.inpcrd
 Checking Unit.
-
-/home/aumu/miniconda3/envs/AutoMD/bin/teLeap: Warning!
-There is a bond of 3.960 angstroms between C and N atoms:
--------  .R<ILE 66>.A<C 18> and .R<GLY 67>.A<N 1>
-
-/home/aumu/miniconda3/envs/AutoMD/bin/teLeap: Warning!
-There is a bond of 3.123 angstroms between C and N atoms:
--------  .R<ILE 164>.A<C 18> and .R<GLY 165>.A<N 1>
-
-/home/aumu/miniconda3/envs/AutoMD/bin/teLeap: Warning!
-The unperturbed charge of the unit (4.000000) is not zero.
-
-/home/aumu/miniconda3/envs/AutoMD/bin/teLeap: Note.
-Ignoring the warnings from Unit Checking.
-
 Building topology.
 Building atom parameters.
 Building bond parameters.
 Building angle parameters.
 Building proper torsion parameters.
 Building improper torsion parameters.
- total 554 improper torsions applied
+ total 1826 improper torsions applied
 Building H-Bond parameters.
 Incorporating Non-Bonded adjustments.
 Not Marking per-residue atom chain types.
@@ -483,12 +520,12 @@ Marking per-residue atom chain types.
 
 	res	total affected
 
-	CPHE	2
-	NPRO	2
-	WAT	8529
+	CGLN	2
+	NMET	2
+	WAT	29657
   )
  (no restraints)
 > quit
 	Quit
 
-Exiting LEaP: Errors = 0; Warnings = 4; Notes = 1.
+Exiting LEaP: Errors = 0; Warnings = 0; Notes = 0.

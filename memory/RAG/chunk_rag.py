@@ -237,6 +237,9 @@ class ChunkRAGContextBuilder:
             return "暂无可召回的 chunks。"
 
         lines: list[str] = ["相关历史 chunks："]
+        top_score = max((float(item.get("score", 0) or 0) for item in results), default=0.0)
+        if top_score < 0.2:
+            lines.append("注意：本次召回相似度较低，仅能作为历史经验弱参考，不能替代当前任务事实或关键参数判断。")
         for index, item in enumerate(results, start=1):
             lines.append(f"{index}. score={item.get('score', 0)} | type={item.get('chunk_type', '')} | run={item.get('run_id', '')}")
             lines.append(str(item.get("text", "")).strip())

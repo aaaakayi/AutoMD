@@ -55,3 +55,9 @@ def search_from_rag(
     return chunk_pipeline.context_builder.format_results(results)
 
 
+if __name__ == "__main__":
+    query = "处理配体失败"
+
+    # tool_param, outcome_summary, task_flow
+    print(search_from_rag(query, top_k=5, chunk_types={"tool_param"}))
+
