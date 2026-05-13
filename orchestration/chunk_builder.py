@@ -4,6 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from orchestration.dsml_utils import strip_dsml
+
 
 class RunChunkBuilder:
     """Build lightweight RAG chunks from run-level long memory JSON files."""
@@ -424,6 +426,8 @@ class RunChunkBuilder:
     def build_chunks_from_run(self, run: dict[str, Any]) -> list[dict[str, Any]]:
         chunks = [self._build_task_flow_chunk(run), self._build_outcome_chunk(run)]
         chunks.extend(self._build_tool_chunks(run))
+        for chunk in chunks:
+            chunk["text"] = strip_dsml(chunk.get("text", ""))
         return chunks
 
     def build_all_chunks(self) -> list[dict[str, Any]]:

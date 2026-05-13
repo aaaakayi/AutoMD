@@ -1,0 +1,29 @@
+{
+  "molecular_weight": 493.62,
+  "logP": 4.59,
+  "hbd": 2,
+  "hba": 7,
+  "rotatable_bonds": 7,
+  "tpsa": 86.28,
+  "heavy_atoms": 37,
+  "aromatic_rings": 4,
+  "qed": 0.3894,
+  "synthetic_accessibility": 3.44,
+  "lipinski": {
+    "pass": true,
+    "violations": [],
+    "violation_count": 0
+  },
+  "veber": {
+    "pass": true,
+    "violations": []
+  },
+  "ghose_filter": {
+    "pass": false
+  },
+  "pains_alerts": [],
+  "pains_count": 0,
+  "brenk_alerts": [],
+  "brenk_count": 0,
+  "overall_assessment": "GOOD: Ghose filter failure"
+}

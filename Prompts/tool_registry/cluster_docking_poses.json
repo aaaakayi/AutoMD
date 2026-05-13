@@ -1,0 +1,11 @@
+{
+  "name": "cluster_docking_poses",
+  "function": "cluster_docking_poses",
+  "description": "对Vina多模型PDBQT输出进行重原子RMSD单链聚类，按Vina评分选取各cluster代表pose并写出PDB文件。",
+  "parameters": [
+    { "name": "docked_pdbqt", "type": "str", "required": true, "description": "Vina输出的多模型PDBQT文件路径。" },
+    { "name": "output_dir", "type": "str", "required": true, "description": "聚类结果输出目录。" },
+    { "name": "reference_pdb", "type": "str", "required": false, "default": "", "description": "可选的参考PDB用于对齐，默认为空（使用第一个pose）。" },
+    { "name": "rmsd_cutoff", "type": "float", "required": false, "default": 2.0, "description": "RMSD聚类截断值（Angstrom），默认2.0A。" }
+  ]
+}

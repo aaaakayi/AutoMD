@@ -1,6 +1,8 @@
 import json
 from typing import Any, Dict, Iterable, List, Optional
 
+from tools.shared import ToolResult
+
 from tools.dock import dock, get_docking_box_from_p2rank
 
 from tools.protein import fetch_pdb,prepare_pure_protein,run_prepare_receptor4_py
@@ -39,7 +41,10 @@ def _none_if_empty(value: str) -> Optional[str]:
 
 
 def fetch_pdb_strict(pdb_id: str, output_dir: str) -> str:
-    return fetch_pdb(pdb_id=pdb_id, output_dir=output_dir)
+    result = fetch_pdb(pdb_id=pdb_id, output_dir=output_dir)
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def prepare_pure_protein_strict(pdb_id: str, output_root: str) -> Dict[str, Any]:
@@ -95,7 +100,10 @@ def prepare_ligand_amber_route_strict(
 def setup_environment_strict(packages_json: str, method: str, target_env: str) -> str:
     packages = _parse_list(packages_json)
     env = _none_if_empty(target_env)
-    return setup_environment(packages=packages or None, method=method, target_env=env)
+    result = setup_environment(packages=packages or None, method=method, target_env=env)
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def web_search_strict(query: str, num_results: int) -> str:
@@ -108,14 +116,17 @@ def get_docking_box_from_p2rank_strict(
     use_getbox: bool,
     extension: float,
     fallback_to_simple: bool,
-) -> Dict[str, float]:
-    return get_docking_box_from_p2rank(
+) -> str:
+    result = get_docking_box_from_p2rank(
         protein_pdb=protein_pdb,
         output_dir=output_dir,
         use_getbox=use_getbox,
         extension=extension,
         fallback_to_simple=fallback_to_simple,
     )
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def dock_strict(
@@ -135,7 +146,7 @@ def dock_strict(
     cx = None if center_x == "" else float(center_x)
     cy = None if center_y == "" else float(center_y)
     cz = None if center_z == "" else float(center_z)
-    return dock(
+    result = dock(
         protein_file=protein_file,
         ligand_file=ligand_file,
         output_dir=output_dir,
@@ -149,29 +160,34 @@ def dock_strict(
         num_modes=num_modes,
         energy_range=energy_range,
     )
-
-
-def get_net_charge_from_mol_strict(smiles: str) -> str:
-    return get_net_charge_from_mol(smiles)
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def read_text_file_strict(path: str, max_chars: int, allow_outside_project: bool, encoding: str) -> str:
-    return read_text_file(
+    result = read_text_file(
         path=path,
         max_chars=max_chars,
         allow_outside_project=allow_outside_project,
         encoding=encoding,
     )
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def write_text_file_strict(path: str, content: str, mode: str, allow_outside_project: bool, encoding: str) -> str:
-    return write_text_file(
+    result = write_text_file(
         path=path,
         content=content,
         mode=mode,
         allow_outside_project=allow_outside_project,
         encoding=encoding,
     )
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def run_shell_command_strict(
@@ -182,27 +198,33 @@ def run_shell_command_strict(
     env_json: str,
 ) -> str:
     env = _parse_dict(env_json)
-    return run_shell_command(
+    result = run_shell_command(
         command=command,
         cwd=_none_if_empty(cwd),
         timeout_seconds=timeout_seconds,
         max_output_chars=max_output_chars,
         env=env or None,
     )
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 
 def read_error_report_strict(log_path: str, raw_error_text: str, max_chars: int, allow_outside_project: bool) -> str:
-    return read_error_report(
+    result = read_error_report(
         log_path=_none_if_empty(log_path),
         raw_error_text=_none_if_empty(raw_error_text),
         max_chars=max_chars,
         allow_outside_project=allow_outside_project,
     )
+    if isinstance(result, ToolResult):
+        return result.format_for_agent()
+    return str(result)
 
 def run_prepare_receptor4_py_strict(
     input_pdb: str,
     output_pdbqt: str
-) -> str:
+) -> ToolResult:
     return run_prepare_receptor4_py(
         input_pdb=input_pdb,
         output_pdbqt=output_pdbqt
@@ -216,7 +238,7 @@ STRICT_TOOL_MAP = {
     "web_search": web_search_strict,
     "get_docking_box_from_p2rank": get_docking_box_from_p2rank_strict,
     "dock": dock_strict,
-    "get_net_charge_from_mol": get_net_charge_from_mol_strict,
+
     "read_text_file": read_text_file_strict,
     "write_text_file": write_text_file_strict,
     "run_shell_command": run_shell_command_strict,

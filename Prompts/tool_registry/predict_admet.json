@@ -1,0 +1,9 @@
+{
+  "name": "predict_admet",
+  "function": "predict_admet",
+  "description": "使用RDKit预测配体的ADMET性质，包含Lipinski五规则、Veber规则、Ghose filter、PAINS/Brenk警报、QED和SA score。输出admet_report.json。",
+  "parameters": [
+    { "name": "smiles_or_sdf", "type": "str", "required": true, "description": "配体SMILES字符串或SDF文件路径。" },
+    { "name": "output_dir", "type": "str", "required": true, "description": "输出目录，报告将保存为admet_report.json。" }
+  ]
+}

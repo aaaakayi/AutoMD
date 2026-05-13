@@ -1,0 +1,1 @@
+{"schema_version": "1.1", "seq": 1, "event_type": "run_started", "timestamp": "2026-05-05T11:11:54", "run_id": "20260505_111148", "raw_task": "对 1IEP 和配体：Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C 进行MD的文件预处理和对接，并且执行后续的分子动力学模拟流程（10纳秒简单验证即可，能使用GPU加速就用GPU加速），并且进行后分析和轨迹分析。", "debug_tool_calls": false}

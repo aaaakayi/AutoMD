@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 from autogen_agentchat.agents import AssistantAgent
 from autogen_core.model_context import BufferedChatCompletionContext
 from autogen_core.tools import FunctionTool
-from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_ext.models.openai._model_info import ModelInfo
+
+from Agents.dsml_safe_client import DSMLSafeOpenAIClient
 
 load_dotenv()
 
@@ -26,8 +27,8 @@ from tools.use_tools import (
 
 TOOL_CONFIG_PATH = PROJECT_ROOT / "Prompts" / "tool_registry.json"
 
-def create_model_client() -> OpenAIChatCompletionClient:
-    """创建模型客户端。"""
+def create_model_client() -> DSMLSafeOpenAIClient:
+    """创建模型客户端（带 DSML 防护）。"""
     api_key = os.getenv("LLM_API_KEY")
     if not api_key:
         raise ValueError("请设置 LLM_API_KEY 环境变量")
@@ -42,10 +43,12 @@ def create_model_client() -> OpenAIChatCompletionClient:
         function_calling=True,
         json_output=False,
         structured_output=False,
-        family="deepseek"
+        # Use the generic family because the installed Autogen OpenAI client
+        # cannot round-trip Deepseek thinking-mode / reasoning_content reliably.
+        family="unknown"
     )
 
-    return OpenAIChatCompletionClient(
+    client = DSMLSafeOpenAIClient(
         model=model_name,
         api_key=api_key,
         base_url=base_url,
@@ -54,6 +57,9 @@ def create_model_client() -> OpenAIChatCompletionClient:
         timeout=300,
         max_retries=3,
     )
+
+    return client
+
 
 def load_system_message(file_path: Path) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
@@ -95,7 +101,7 @@ def create_executor_agent(
     agent_name: str,
     system_message_path: Path,
     allowed_functions: Iterable[str],
-    model_client: Optional[OpenAIChatCompletionClient] = None,
+    model_client: Optional[DSMLSafeOpenAIClient] = None,
     tool_map: Optional[Dict[str, Any]] = None,
     strict_mode: bool = False,
     extra_system_rules: str = "",

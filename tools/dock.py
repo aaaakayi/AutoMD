@@ -22,6 +22,8 @@ import tempfile
 import shutil
 from typing import List, Dict, Any, Tuple, Optional, Union
 
+from tools.shared import success, degraded, failed, ToolResult
+
 P2RANK_TIMEOUT_SECONDS = 300
 project_root = Path(__file__).resolve().parent.parent
 
@@ -266,17 +268,17 @@ def get_docking_box_from_p2rank(
                     )
                     if _is_implausible_getbox_result(box, top):
                         raise RuntimeError(f"GetBox 返回异常盒参数: {box}")
-                    return box
+                    return success(data=box)
                 except Exception as e:
                     if fallback_to_simple:
                         print(f"GetBox 计算失败 ({e})，降级使用简单尺寸估算")
                     else:
                         raise
 
-    # 3. 降级方案：简单尺寸估算（基于残基数）
+    # 3. L1 降级: 简单尺寸估算（基于残基数）
     num_res = int(top.get('num_residues', 0) or 0)
     size = max(20.0, num_res * 1.5)
-    return {
+    box_data = {
         'center_x': top['center_x'],
         'center_y': top['center_y'],
         'center_z': top['center_z'],
@@ -284,6 +286,16 @@ def get_docking_box_from_p2rank(
         'size_y': size,
         'size_z': size,
     }
+    # If we reached here via fallback, annotate as degraded
+    if not use_getbox or not residues_str or not residue_ids:
+        return degraded(
+            data=box_data,
+            degradation=["simple size estimate (no P2Rank residues)"],
+        )
+    return degraded(
+        data=box_data,
+        degradation=["GetBox→simple size estimate"],
+    )
 
 
 def get_docking_box_from_pymol_getbox(
@@ -417,11 +429,11 @@ def dock(
     size_x: float = 15.0,
     size_y: float = 15.0,
     size_z: float = 15.0,
-    use_getbox: bool = True, # 是否启用 GetBox 精确计算对接盒参数
+    use_getbox: bool = True,
     exhaustiveness: int = 8,
     num_modes: int = 9,
     energy_range: float = 3.0,
-) -> str:
+) -> ToolResult:
     """
     执行 AutoDock Vina 对接（仅接受 PDBQT 格式的蛋白和配体文件）。
 
@@ -445,21 +457,21 @@ def dock(
 
     # 1. 依赖检查
     if shutil.which("vina") is None:
-        return "错误：未找到 AutoDock Vina (vina) 命令。请先安装（例如 conda install -c conda-forge vina）。"
+        return failed(errors=["未找到 AutoDock Vina (vina) 命令。请先安装（例如 conda install -c conda-forge vina）。"])
 
     # 2. 解析输入文件路径并检查格式
     protein_path = Path(protein_file).resolve()
     ligand_path = Path(ligand_file).resolve()
 
     if not protein_path.exists():
-        return f"错误：蛋白质文件不存在: {protein_path}"
+        return failed(errors=[f"蛋白质文件不存在: {protein_path}"])
     if not ligand_path.exists():
-        return f"错误：配体文件不存在: {ligand_path}"
+        return failed(errors=[f"配体文件不存在: {ligand_path}"])
 
     if protein_path.suffix.lower() != ".pdbqt":
-        return f"错误：蛋白质文件必须是 PDBQT 格式（后缀 .pdbqt），当前文件: {protein_path}"
+        return failed(errors=[f"蛋白质文件必须是 PDBQT 格式（后缀 .pdbqt），当前文件: {protein_path}"])
     if ligand_path.suffix.lower() != ".pdbqt":
-        return f"错误：配体文件必须是 PDBQT 格式（后缀 .pdbqt），当前文件: {ligand_path}"
+        return failed(errors=[f"配体文件必须是 PDBQT 格式（后缀 .pdbqt），当前文件: {ligand_path}"])
 
     # 3. 确定对接盒子中心
     if center_x is None or center_y is None or center_z is None:
@@ -470,7 +482,7 @@ def dock(
             if use_getbox:
                 size_x, size_y, size_z = box['size_x'], box['size_y'], box['size_z']
         except Exception as e:
-            return f"自动计算盒子中心失败: {e}"
+            return failed(errors=[f"自动计算盒子中心失败: {e}"])
 
     # 4. 准备 Vina 配置文件
     with tempfile.TemporaryDirectory(prefix="vina_", dir=out_dir) as tmpdir:

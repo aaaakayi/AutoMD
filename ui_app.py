@@ -8,6 +8,7 @@ from typing import Optional
 import gradio as gr
 
 from main import PROGRESS_REPORT_PATH, run_pipeline
+from orchestration.dsml_utils import strip_dsml
 
 DEFAULT_TASK = (
     "对 1IEP 和配体：Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C 进行MD的文件预处理和对接，生成后续可执行的MD所需文件。"
@@ -51,7 +52,7 @@ def _drain_queue(q: queue.Queue) -> None:
 
 
 def _append_chat_line(line: str) -> None:
-    text = (line or "").strip()
+    text = strip_dsml(line or "").strip()
     if not text:
         return
     with _CHAT_LOCK:

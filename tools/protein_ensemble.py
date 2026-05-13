@@ -1,6 +1,7 @@
 from typing import List
 import requests
 from tools.protein import fetch_pdb
+from tools.shared import success, degraded, failed, ToolResult
 
 RCSB_DATA_API_BASE = "https://data.rcsb.org/rest/v1/core"
 

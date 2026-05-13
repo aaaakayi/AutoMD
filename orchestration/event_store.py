@@ -5,6 +5,8 @@ from typing import Any
 
 from autogen_agentchat.messages import ToolCallExecutionEvent, ToolCallRequestEvent, ToolCallSummaryMessage
 
+from orchestration.dsml_utils import strip_dsml
+
 
 class StructuredEventStore:
     def __init__(self, event_log_dir: Path):
@@ -117,6 +119,7 @@ class StructuredEventStore:
         )
 
     def record_coordinator_assignment(self, content: str, raw_task: str | None = None) -> None:
+        clean_content = strip_dsml(content)
         targets = self._extract_target_agents(content)
         assignment_event = {
             "seq": self._next_event_seq(),
@@ -125,8 +128,8 @@ class StructuredEventStore:
             "run_id": self.run_id,
             "source": "Coordinator",
             "targets": targets,
-            "task_content": content,
-            "task_excerpt": self.shorten_text(content, 600),
+            "task_content": clean_content,
+            "task_excerpt": self.shorten_text(clean_content, 600),
         }
         self._append_event(assignment_event)
 
@@ -134,10 +137,11 @@ class StructuredEventStore:
             self.pending_assignments[target] = {
                 "from_event_seq": assignment_event["seq"],
                 "assigned_at": assignment_event["timestamp"],
-                "task_content": content,
+                "task_content": clean_content,
             }
 
     def record_agent_message(self, source: str, content: str, raw_task: str | None = None) -> None:
+        clean_content = strip_dsml(content)
         assignment = self.pending_assignments.pop(source, None)
         status = self._detect_problem_status(content)
         degraded = self._detect_degrade_flag(content)
@@ -149,8 +153,8 @@ class StructuredEventStore:
             "timestamp": self._now_iso(),
             "run_id": self.run_id,
             "agent": source,
-            "message_content": content,
-            "message_excerpt": self.shorten_text(content, 800),
+            "message_content": clean_content,
+            "message_excerpt": self.shorten_text(clean_content, 800),
             "message_index": self.message_seq,
             "status": status,
             "degraded": degraded,
@@ -161,7 +165,7 @@ class StructuredEventStore:
         self.latest_agent_outcomes[source] = {
             "status": status,
             "degraded": degraded,
-            "last_message_excerpt": self.shorten_text(content, 400),
+            "last_message_excerpt": self.shorten_text(clean_content, 400),
             "updated_at": event["timestamp"],
             "resolved_assignment_seq": assignment["from_event_seq"] if assignment else None,
         }

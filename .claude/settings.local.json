@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(conda run *)",
+      "Bash(python3 *)",
+      "Read(//mnt/d/PycharmProjects/AutoMD/**)",
+      "Read(//mnt/d/PycharmProjects/AutoMD/.cursor/**)",
+      "Read(//mnt/d/PycharmProjects/AutoMD/.github/**)",
+      "Bash(find /mnt/d/PycharmProjects/AutoMD[root] -maxdepth 3 -type f -name \"*.py\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(pip show *)",
+      "Bash(find *)",
+      "Bash(pip3 list *)",
+      "Bash(pip list *)",
+      "Bash(conda env *)",
+      "Bash(/home/aumu/miniconda3/envs/AutoMD/bin/python *)",
+      "Bash(/home/aumu/miniconda3/envs/AutoMD/bin/pip show *)",
+      "WebSearch",
+      "Bash(pip3 show *)"
+    ]
+  }
+}

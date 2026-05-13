@@ -1,0 +1,11 @@
+{
+  "name": "analyze_interactions",
+  "function": "analyze_interactions",
+  "description": "分析蛋白-配体相互作用，检测氢键、疏水接触、pi-pi堆积、盐桥、卤键和水桥。优先使用PLIP，不可用时自动降级到RDKit距离法。",
+  "parameters": [
+    { "name": "protein_pdb", "type": "str", "required": true, "description": "蛋白质PDB文件路径。" },
+    { "name": "ligand_sdf", "type": "str", "required": true, "description": "配体SDF或MOL2文件路径。" },
+    { "name": "output_dir", "type": "str", "required": true, "description": "分析报告输出目录。" },
+    { "name": "use_plip", "type": "bool", "required": false, "default": true, "description": "是否优先尝试PLIP命令行工具。" }
+  ]
+}

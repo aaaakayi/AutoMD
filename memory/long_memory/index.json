@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-25T15:07:22",
+  "updated_at": "2026-05-08T10:38:44",
   "runs": [
     {
       "run_id": "20260424_163926",
@@ -16,6 +16,22 @@
       "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260425_145224.json",
       "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260425_145224.jsonl",
       "updated_at": "2026-04-25T15:07:22"
+    },
+    {
+      "run_id": "20260506_155839",
+      "raw_task": "对 1IEP 和配体：Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C 进行MD的文件预处理和对接，并且执行后续的分子动力学模拟流程（1纳秒简单验证即可，能使用GPU加速就用GPU加速），并且进行后分析和轨迹分析。output文件夹下已经有了需要已经处理好的文件，优先复用不要再额外生成。",
+      "overall_status": "unknown",
+      "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260506_155839.json",
+      "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260506_155839.jsonl",
+      "updated_at": "2026-05-06T17:11:34"
+    },
+    {
+      "run_id": "20260508_102128",
+      "raw_task": "对 1IEP 和配体：Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C 进行MD的文件预处理和对接，现在output文件夹下已经有了相关经过MD模拟后的文件，你进行后分析和轨迹分析，优先复用问卷不要再额外生成。最后给出系统性的报告汇报这次工作。",
+      "overall_status": "unknown",
+      "memory_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/runs/run_20260508_102128.json",
+      "event_path": "/mnt/d/PycharmProjects/AutoMD[root]/memory/long_memory/events/run_20260508_102128.jsonl",
+      "updated_at": "2026-05-08T10:38:44"
     }
   ]
 }

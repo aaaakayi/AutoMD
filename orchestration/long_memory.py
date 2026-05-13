@@ -13,6 +13,9 @@ class LongMemoryMaterializer:
         self.memory_root = self.project_root / "memory" / "long_memory"
         self.runs_dir = self.memory_root / "runs"
         self.index_path = self.memory_root / "index.json"
+        self.chunks_path = self.memory_root / "chunks" / "chunks.jsonl"
+        self.vector_db_dir = self.project_root / "memory" / "RAG" / "vector_db"
+        self.vector_collection = "automd_chunks"
 
     @staticmethod
     def _now_iso() -> str:
@@ -175,4 +178,82 @@ class LongMemoryMaterializer:
         index["runs"] = runs[-200:]
         index["updated_at"] = self._now_iso()
         self.index_path.write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
+        return out_path
+
+    def _merge_chunks_for_run(self, run_id: str, new_chunks: list[dict[str, Any]]) -> None:
+        """Replace chunks for the given run_id in chunks.jsonl, keeping other runs intact."""
+        from .chunk_builder import RunChunkBuilder
+
+        builder = RunChunkBuilder(self.runs_dir, self.chunks_path)
+
+        existing: list[dict[str, Any]] = []
+        if self.chunks_path.exists():
+            try:
+                with self.chunks_path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        text = line.strip()
+                        if not text:
+                            continue
+                        try:
+                            payload = json.loads(text)
+                        except Exception:
+                            continue
+                        if isinstance(payload, dict):
+                            existing.append(payload)
+            except Exception:
+                pass
+
+        kept = [c for c in existing if str(c.get("run_id", "")) != run_id]
+        kept.extend(new_chunks)
+        builder.write_chunks_jsonl(kept)
+
+    def _update_vector_index(self) -> bool:
+        """Rebuild vector index from chunks.jsonl. Returns True on success."""
+        try:
+            from memory.RAG.chunk_rag import ChunkRAGPipeline
+        except Exception:
+            return False
+
+        try:
+            pipeline = ChunkRAGPipeline(
+                chunks_path=self.chunks_path,
+                db_dir=self.vector_db_dir,
+                collection_name=self.vector_collection,
+                rebuild_index=False,
+                auto_build_if_empty=True,
+            )
+            pipeline.build_index(rebuild=False)
+            return True
+        except Exception:
+            return False
+
+    def materialize_and_index(
+        self,
+        *,
+        event_store: StructuredEventStore,
+        raw_task: str,
+        transcript: list[tuple[str, str]],
+    ) -> Path:
+        """Materialize run memory and automatically build RAG chunks + update vector DB."""
+        out_path = self.materialize(
+            event_store=event_store,
+            raw_task=raw_task,
+            transcript=transcript,
+        )
+
+        try:
+            run_memory = json.loads(out_path.read_text(encoding="utf-8"))
+        except Exception:
+            return out_path
+
+        try:
+            from .chunk_builder import RunChunkBuilder
+
+            builder = RunChunkBuilder(self.runs_dir, self.chunks_path)
+            new_chunks = builder.build_chunks_from_run(run_memory)
+            self._merge_chunks_for_run(event_store.run_id, new_chunks)
+        except Exception:
+            return out_path
+
+        self._update_vector_index()
         return out_path

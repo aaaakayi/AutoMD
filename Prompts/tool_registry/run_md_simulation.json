@@ -1,0 +1,20 @@
+{
+  "name": "run_md_simulation",
+  "function": "run_md_simulation",
+  "description": "使用OpenMM运行完整的蛋白质-配体复合物MD模拟流水线：体系构建、能量最小化、NVT平衡、NPT平衡、生产模拟、轨迹分析。支持断点续跑。",
+  "parameters": [
+    { "name": "protein_prmtop", "type": "str", "required": true, "description": "蛋白质AMBER拓扑文件路径（prmtop）。" },
+    { "name": "protein_inpcrd", "type": "str", "required": true, "description": "蛋白质AMBER坐标文件路径（inpcrd）。" },
+    { "name": "ligand_prmtop", "type": "str", "required": true, "description": "配体AMBER拓扑文件路径（prmtop）。" },
+    { "name": "ligand_inpcrd", "type": "str", "required": true, "description": "配体AMBER坐标文件路径（inpcrd）。" },
+    { "name": "output_dir", "type": "str", "required": true, "description": "输出目录，所有轨迹、checkpoint和分析结果将保存在此。" },
+    { "name": "duration_ns", "type": "float", "required": false, "default": 10.0, "description": "生产模拟时长（ns），默认10ns。" },
+    { "name": "temperature_k", "type": "float", "required": false, "default": 300.0, "description": "模拟温度（K），默认300K。" },
+    { "name": "pressure_atm", "type": "float", "required": false, "default": 1.0, "description": "模拟压力（atm），默认1atm。" },
+    { "name": "timestep_fs", "type": "float", "required": false, "default": 2.0, "description": "积分时间步长（fs），默认2fs。" },
+    { "name": "save_interval_ps", "type": "float", "required": false, "default": 100.0, "description": "轨迹保存间隔（ps），默认100ps。" },
+    { "name": "nvt_equil_ps", "type": "float", "required": false, "default": 100.0, "description": "NVT平衡时长（ps），默认100ps。" },
+    { "name": "npt_equil_ps", "type": "float", "required": false, "default": 100.0, "description": "NPT平衡时长（ps），默认100ps。" },
+    { "name": "restart_from", "type": "str", "required": false, "default": "", "description": "从中断的checkpoint目录恢复模拟。为空则从头开始。" }
+  ]
+}

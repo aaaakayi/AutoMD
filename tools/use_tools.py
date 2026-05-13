@@ -13,6 +13,8 @@ from tools.strict_wrappers import STRICT_TOOL_MAP
 from tools.protein import fetch_pdb,prepare_pure_protein,run_prepare_receptor4_py
 from tools.protein_ensemble import get_protein_ensemble
 from tools.search_from_RAG import search_from_rag
+from tools.postdock import analyze_interactions, cluster_docking_poses, generate_interaction_diagram, predict_admet
+from tools.md_simulation import run_md_simulation
 
 
 TOOL_MAP = {
@@ -27,9 +29,14 @@ TOOL_MAP = {
     "write_text_file": write_text_file,
     "run_shell_command": run_shell_command,
     "read_error_report": read_error_report,
-    "run_prepare_receptor4_py" : run_prepare_receptor4_py,
+    "run_prepare_receptor4_py": run_prepare_receptor4_py,
     "get_protein_ensemble": get_protein_ensemble,
     "search_from_rag": search_from_rag,
+    "analyze_interactions": analyze_interactions,
+    "cluster_docking_poses": cluster_docking_poses,
+    "generate_interaction_diagram": generate_interaction_diagram,
+    "predict_admet": predict_admet,
+    "run_md_simulation": run_md_simulation,
 }
 
 

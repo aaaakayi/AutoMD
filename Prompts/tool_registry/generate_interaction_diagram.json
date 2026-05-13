@@ -1,0 +1,11 @@
+{
+  "name": "generate_interaction_diagram",
+  "function": "generate_interaction_diagram",
+  "description": "生成LigPlot风格的2D蛋白-配体相互作用图，标注相互作用残基和类型，输出PNG图片。",
+  "parameters": [
+    { "name": "protein_pdb", "type": "str", "required": true, "description": "蛋白质PDB文件路径。" },
+    { "name": "ligand_sdf", "type": "str", "required": true, "description": "配体SDF或MOL2文件路径。" },
+    { "name": "output_path", "type": "str", "required": true, "description": "输出PNG图片路径。" },
+    { "name": "interaction_data", "type": "str", "required": false, "default": "", "description": "可选，预计算的相互作用JSON文件（来自analyze_interactions）。为空则自动计算。" }
+  ]
+}

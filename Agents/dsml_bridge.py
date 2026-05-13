@@ -5,52 +5,22 @@ from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.messages import TextMessage
 
 from tools.use_tools import TOOL_MAP, sanitize_text
-
-_DSML_INVOKE_RE = re.compile(
-    r"<\｜DSML\｜invoke\s+name=\"(?P<name>[^\"]+)\"\>\s*(?P<body>.*?)\s*<\/\｜DSML\｜invoke\>",
-    re.DOTALL,
-)
-_DSML_PARAM_RE = re.compile(
-    r"<\｜DSML\｜parameter\s+name=\"(?P<key>[^\"]+)\"[^>]*\>(?P<value>.*?)<\/\｜DSML\｜parameter\>",
-    re.DOTALL,
+from orchestration.dsml_utils import (
+    coerce_value,
+    extract_dsml_calls,
+    has_dsml,
+    strip_dsml,
 )
 
-_DSML_BLOCK_RE = re.compile(r"<\｜DSML\｜function_calls\>[\s\S]*?<\/\｜DSML\｜function_calls\>")
+# Kept for any external callers that reference the old name.
+# Match both single-bar and double-bar DSML forms, e.g. <｜DSML｜...> and <｜｜DSML｜｜...>.
+_DSML_BLOCK_RE = re.compile(r"<｜+DSML｜+(?:function_calls|tool_calls)\s*>[\s\S]*?</｜+DSML｜+(?:function_calls|tool_calls)\s*>")
 
 
-def extract_dsml_calls(text: str) -> List[Tuple[str, Dict[str, Any]]]:
-    calls: List[Tuple[str, Dict[str, Any]]] = []
-    if "<｜DSML｜" not in text:
-        return calls
-
-    for match in _DSML_INVOKE_RE.finditer(text):
-        tool_name = (match.group("name") or "").strip()
-        body = match.group("body") or ""
-        args: Dict[str, Any] = {}
-        for p in _DSML_PARAM_RE.finditer(body):
-            key = (p.group("key") or "").strip()
-            value = (p.group("value") or "").strip()
-            args[key] = value
-        if tool_name:
-            calls.append((tool_name, args))
-
-    return calls
-
-
-def _coerce_value(value: str) -> Any:
-    v = value.strip()
-    low = v.lower()
-    if low == "true":
+def _tool_allowed(tool_name: str, allowed_functions: Optional[Iterable[str]]) -> bool:
+    if allowed_functions is None:
         return True
-    if low == "false":
-        return False
-
-    try:
-        if "." in v:
-            return float(v)
-        return int(v)
-    except ValueError:
-        return value
+    return tool_name in set(allowed_functions)
 
 
 def run_tool_by_name(tool_name: str, args: Dict[str, Any]) -> str:
@@ -58,19 +28,13 @@ def run_tool_by_name(tool_name: str, args: Dict[str, Any]) -> str:
     if func is None:
         return f"错误：未找到工具 {tool_name}（TOOL_MAP 未注册）。"
 
-    parsed_args = {k: _coerce_value(str(v)) for k, v in args.items()}
+    parsed_args = {k: coerce_value(str(v)) for k, v in args.items()}
     try:
         return str(func(**parsed_args))
     except TypeError as exc:
         return f"工具参数不匹配：{tool_name}({parsed_args}) -> {exc}"
     except Exception as exc:
         return f"工具执行异常：{tool_name}({parsed_args}) -> {type(exc).__name__}: {exc}"
-
-
-def _tool_allowed(tool_name: str, allowed_functions: Optional[Iterable[str]]) -> bool:
-    if allowed_functions is None:
-        return True
-    return tool_name in set(allowed_functions)
 
 
 def redact_dsml_markup(text: str) -> str:
@@ -101,6 +65,9 @@ async def run_agent_with_dsml_visualization(
 
     for round_index in range(max_bridge_rounds):
         if not last_assistant_text:
+            break
+
+        if not has_dsml(last_assistant_text):
             break
 
         dsml_calls = extract_dsml_calls(last_assistant_text)

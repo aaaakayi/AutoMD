@@ -3,7 +3,7 @@
   "function": "dock",
   "description": "对接主入口工具,内部自动调用 P2Rank/GetBox 生成盒参数并返回可执行配置摘要，同时执行对接并保存结果。",
   "parameters": [
-    { "name": "protein_file", "type": "str", "required": true, "description": "准备好的蛋白结构文件路径（通常为 PDB）。" },
+    { "name": "protein_file", "type": "str", "required": true, "description": "准备好的蛋白 PDBQT 文件路径（必须为 .pdbqt 格式，由 run_prepare_receptor4_py 生成）。" },
     { "name": "ligand_file", "type": "str", "required": true, "description": "配体文件路径，支持 mol2/pdb/sdf 等。" },
     { "name": "output_dir", "type": "str", "required": false, "default": "./data/docking", "description": "对接结果输出目录。" },
     { "name": "center_x", "type": "float", "required": false, "description": "对接盒子中心 X 坐标。" },

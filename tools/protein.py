@@ -10,6 +10,17 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
+from tools.shared import (
+    PROJECT_ROOT,
+    MGLTOOLS_PCKGS_PATH,
+    CONDA_MGLTOOLS_ENV,
+    PREPARE_RECEPTOR4_SCRIPT,
+    success,
+    degraded,
+    failed,
+    ToolResult,
+)
+
 # ==================== 工具函数 ====================
 
 STANDARD_PROTEIN_RESIDUES = {
@@ -191,16 +202,15 @@ def run_prepare_receptor4_py(
     output_abs = os.path.abspath(output_pdbqt)
     output_dir = os.path.dirname(output_abs)
 
-    conda_env = "mgltools" # 默认使用 mgltools 环境，不推荐修改不推荐暴露给agent
+    conda_env = CONDA_MGLTOOLS_ENV  # 使用共享配置
 
     if not os.path.exists(input_abs):
         print(f"输入文件不存在: {input_abs}")
         return False
 
-    # 1. 定位 prepare_receptor4.py 脚本
-    project_root = Path(__file__).parent.parent
-    mgltools_pckgs_path = project_root / 'dock_tools' / 'mgltools' / 'mgltools_x86_64Linux2_1.5.7' / 'MGLToolsPckgs'
-    script_path = project_root / 'dock_tools' / 'mgltools' / 'mgltools_x86_64Linux2_1.5.7' / 'MGLToolsPckgs' / 'AutoDockTools' / 'Utilities24' / 'prepare_receptor4.py'
+    # 1. 定位 prepare_receptor4.py 脚本（使用共享配置）
+    script_path = PREPARE_RECEPTOR4_SCRIPT
+    mgltools_pckgs_path = MGLTOOLS_PCKGS_PATH
 
     env = os.environ.copy()
     if 'PYTHONPATH' in env:
@@ -248,14 +258,25 @@ def run_prepare_receptor4_py(
 
     if result.returncode != 0:
         print(f"prepare_receptor4.py 执行失败:\n{result.stderr}")
-        # 如果失败且使用了 conda run，可尝试降级到 Open Babel
+        # L0 MGLTools 失败 → L1 OpenBabel
+        from tools.ligand import run_obabel_pdbqt
         if use_conda_run:
-            print("conda 环境执行失败，尝试使用 Open Babel 作为备选")
-            return run_obabel_pdbqt(input_abs, output_pdbqt)  # 假设已有此函数
-        return False
+            print("conda 环境执行失败，降级使用 Open Babel 作为备选")
+            if run_obabel_pdbqt(input_abs, output_pdbqt):
+                return degraded(
+                    data=f"降级使用 OpenBabel 生成 PDBQT: {output_pdbqt}",
+                    degradation=["MGLTools→OpenBabel"],
+                    errors=[f"MGLTools 失败: {result.stderr.strip()}"],
+                    warnings=["OpenBabel 使用 Gasteiger 电荷，精度低于 MGLTools"],
+                )
+            return failed(
+                errors=["MGLTools 和 OpenBabel 均失败"],
+                degradation=["MGLTools→OpenBabel→failed"],
+            )
+        return failed(errors=[f"prepare_receptor4.py 执行失败: {result.stderr.strip()}"])
     else:
         print(f"成功通过 mgltools 生成 PDBQT 文件: {output_abs}")
-        return True
+        return success(data=f"MGLTools 生成 PDBQT 文件: {output_abs}")
 
 # ==================== 命令行入口 ====================
 if __name__ == "__main__":

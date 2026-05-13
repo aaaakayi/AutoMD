@@ -1,0 +1,7 @@
+source leaprc.protein.ff14SB
+source leaprc.gaff2
+loadamberparams ./output/ligand/lig.frcmod
+LIG = loadmol2 ./output/ligand/lig_dedup3.mol2
+check LIG
+saveamberparm LIG ./output/ligand/lig.prmtop ./output/ligand/lig.inpcrd
+quit

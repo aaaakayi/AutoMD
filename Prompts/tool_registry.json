@@ -28,6 +28,23 @@
       ]
     },
     {
+      "name": "postdock_analysis",
+      "description": "对接后分析工具：相互作用检测、pose聚类、2D图生成、ADMET预测。",
+      "tools": [
+        { "include": "tool_registry/analyze_interactions.json" },
+        { "include": "tool_registry/cluster_docking_poses.json" },
+        { "include": "tool_registry/generate_interaction_diagram.json" },
+        { "include": "tool_registry/predict_admet.json" }
+      ]
+    },
+    {
+      "name": "md_simulation",
+      "description": "基于OpenMM的MD模拟工具。",
+      "tools": [
+        { "include": "tool_registry/run_md_simulation.json" }
+      ]
+    },
+    {
       "name": "environment_and_utility",
       "description": "环境安装、搜索与文件/日志操作工具。",
       "tools": [

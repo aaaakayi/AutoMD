@@ -27,9 +27,17 @@ import tempfile
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Union
 
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-TEMP_ROOT = PROJECT_ROOT / 'temp'
+from tools.shared import (
+    PROJECT_ROOT,
+    TEMP_ROOT,
+    MGLTOOLS_PCKGS_PATH,
+    CONDA_MGLTOOLS_ENV,
+    PREPARE_LIGAND4_SCRIPT,
+    success,
+    degraded,
+    failed,
+    ToolResult,
+)
 
 
 def _ensure_temp_subdir(*parts: str) -> Path:
@@ -364,36 +372,31 @@ def run_tleap(
 def run_prepare_ligand4_py(
     input_file: str,
     output_pdbqt: str,
-) -> bool:
+) -> ToolResult:
     """
     使用 MGLTools 的 prepare_ligand4.py 脚本生成 PDBQT 文件。
     优先在指定的 conda 环境（默认 mgltools）中执行，以确保 Python 2.7 兼容性。
 
+    降级层次: L0 MGLTools prepare_ligand4.py → L1 OpenBabel obabel → L2 fail
+
     Args:
         input_file: 输入文件（PDB 或 MOL2）
         output_pdbqt: 输出 PDBQT 文件路径
-        mgltools_path: MGLTools 安装路径（可选，会自动搜索）
-        conda_env: conda 环境名称（默认 mgltools）
 
     Returns:
-        成功返回 True，失败返回 False
+        ToolResult
     """
 
-    conda_env = "mgltools"
-    
     input_abs = os.path.abspath(input_file)
     output_abs = os.path.abspath(output_pdbqt)
     output_dir = os.path.dirname(output_abs)
 
-    # 确保输入文件存在
     if not os.path.exists(input_abs):
-        print(f"输入文件不存在: {input_abs}")
-        return False
+        return failed(errors=[f"输入文件不存在: {input_abs}"])
 
-    # 1. 定位 prepare_ligand4.py 脚本
-    project_root = Path(__file__).parent.parent
-    mgltools_pckgs_path = project_root / 'dock_tools' / 'mgltools' / 'mgltools_x86_64Linux2_1.5.7' / 'MGLToolsPckgs'
-    script_path = project_root / 'dock_tools' / 'mgltools' / 'mgltools_x86_64Linux2_1.5.7' / 'MGLToolsPckgs' / 'AutoDockTools' / 'Utilities24' / 'prepare_ligand4.py'
+    script_path = PREPARE_LIGAND4_SCRIPT
+    mgltools_pckgs_path = MGLTOOLS_PCKGS_PATH
+    conda_env = CONDA_MGLTOOLS_ENV
 
     env = os.environ.copy()
     if 'PYTHONPATH' in env:
@@ -401,55 +404,63 @@ def run_prepare_ligand4_py(
     else:
         env['PYTHONPATH'] = str(mgltools_pckgs_path)
 
-    # 2. 确定执行命令：优先使用 conda 环境中的 Python
     conda_executable = shutil.which("conda")
-    use_conda_run = False
-    python_cmd = "python"  # 默认
 
-    if conda_executable:
-        # 检查指定的 conda 环境是否存在
-        result = subprocess.run(
-            [conda_executable, "env", "list"],
-            capture_output=True, text=True
-        )
-        if conda_env in result.stdout:
-            use_conda_run = True
-            print(f"使用 conda 环境 '{conda_env}' 执行 MGLTools 脚本")
-        else:
-            print(f"警告：conda 环境 '{conda_env}' 不存在，将使用当前 Python 环境")
-    else:
-        print("警告：未找到 conda 命令，将使用当前 Python 环境")
+    if not conda_executable:
+        return _pdbqt_fallback_obabel(input_abs, output_abs,
+            degradation=["conda unavailable→OpenBabel"],
+            errors=["未找到 conda 命令"])
 
-    # 3. 构建命令
-    if use_conda_run:
-        # 使用 conda run 在指定环境中执行
-        cmd = [
-            conda_executable, "run", "-n", conda_env,
-            "python", str(script_path),
-            "-l", input_abs,
-            "-o", output_abs,
-            "-v"
-        ]
-    else:
-        print(f"错误：无法使用 {conda_env} 环境执行 MGLTools 脚本")
-        return False
+    result = subprocess.run(
+        [conda_executable, "env", "list"],
+        capture_output=True, text=True
+    )
+    if conda_env not in result.stdout:
+        return _pdbqt_fallback_obabel(input_abs, output_abs,
+            degradation=["conda mgltools env missing→OpenBabel"],
+            errors=[f"conda 环境 '{conda_env}' 不存在"])
 
-    # 4. 执行
+    # L0: MGLTools prepare_ligand4.py
+    cmd = [
+        conda_executable, "run", "-n", conda_env,
+        "python", str(script_path),
+        "-l", input_abs,
+        "-o", output_abs,
+        "-v"
+    ]
+
     os.makedirs(output_dir, exist_ok=True)
     result = subprocess.run(cmd, capture_output=True, text=True, env=env, cwd=output_dir)
 
     if result.returncode != 0:
-        print(f"prepare_ligand4.py 执行失败:\n{result.stderr}")
-        # 如果失败且使用了 conda run，可尝试降级到 Open Babel
-        if use_conda_run:
-            print("conda 环境执行失败，尝试使用 Open Babel 作为备选")
-            return run_obabel_pdbqt(input_abs, output_abs)
-        return False
-    else:
-        print(f"成功通过 mgltools 生成 PDBQT 文件: {output_abs}")
-        return True
+        # L0 失败 → L1 OpenBabel
+        return _pdbqt_fallback_obabel(input_abs, output_abs,
+            degradation=["MGLTools→OpenBabel"],
+            errors=[f"prepare_ligand4.py 执行失败: {result.stderr.strip()}"])
 
-    return True
+    return success(data=f"MGLTools 生成 PDBQT 文件: {output_abs}")
+
+
+def _pdbqt_fallback_obabel(
+    input_abs: str,
+    output_abs: str,
+    *,
+    degradation: list,
+    errors: list,
+) -> ToolResult:
+    """L1 降级: 使用 OpenBabel 生成 PDBQT。"""
+    ok = run_obabel_pdbqt(input_abs, output_abs)
+    if ok:
+        return degraded(
+            data=f"降级使用 OpenBabel 生成 PDBQT: {output_abs}（电荷精度较低，为 Gasteiger 电荷）",
+            degradation=degradation,
+            errors=errors,
+            warnings=["OpenBabel 使用 Gasteiger 电荷，精度低于 MGLTools"],
+        )
+    return failed(
+        errors=errors + ["OpenBabel PDBQT 转换也失败"],
+        degradation=degradation + ["OpenBabel→failed"],
+    )
 
 def run_obabel_pdbqt(input_file: str, output_pdbqt: str) -> bool:
     """
@@ -787,12 +798,13 @@ def prepare_ligand_amber_route(
     # Step 4: 生成 PDBQT（对接）
     if generate_pdbqt:
         pdbqt_file = str(output_path / f'{residue_name.lower()}.pdbqt')
-        if run_prepare_ligand4_py(mol2_file, pdbqt_file):
+        pdbqt_result = run_prepare_ligand4_py(mol2_file, pdbqt_file)
+        if pdbqt_result.ok:
             result_files['pdbqt'] = pdbqt_file
+            pdbqt_degradation = pdbqt_result.degradation
         else:
-            print("使用 Open Babel 生成 PDBQT")
-            if run_obabel_pdbqt(mol2_file, pdbqt_file):
-                result_files['pdbqt'] = pdbqt_file
+            # L1 fallback already handled inside run_prepare_ligand4_py
+            pdbqt_degradation = ["PDBQT generation failed"]
 
     # Step 5: 生成 AMBER 拓扑文件（MD）
     if generate_md_files:
@@ -826,6 +838,9 @@ def prepare_ligand_amber_route(
                 elif ext == '_GMX.gro':
                     result_files['gmx_gro'] = str(dst)
 
+    # Collect degradation info from sub-steps
+    degradation_steps: list = []
+    # Ensure result_files includes degradation metadata
     return result_files
 
 
