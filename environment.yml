@@ -1,0 +1,32 @@
+name: AutoMD
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - mdtraj
+  - openmm
+  - rdkit
+  - openbabel
+  - ambertools
+  # AutoDock Vina CLI —— 提供对接用的 /bin/vina 二进制。
+  # 必须在 environment.yml 里装好, 不要依赖运行时 set_env 自动修复
+  # (set_env 走的 conda libmamba solver 在某些状态下会误判 "已装",
+  #  returncode=0 但实际没装, 触发 docking_run ↔ set_env 死循环)。
+  # bioconda channel 必须配 conda-forge 作为依赖源, bioconda 放最后。
+  - bioconda::autodock-vina
+  - requests
+  - pydantic>=2
+  - pip:
+      - fastapi
+      - uvicorn[standard]
+      - python-dotenv
+      - langgraph
+      - langchain-core
+      - langchain-deepseek
+      - networkx

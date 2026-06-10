@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AutoMD</title>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<style>
+:root{--bg:#0d0d1a;--srf:#151530;--sdb:#111128;--ac:#7c5cfc;--a2:#a78bfa;--tx:#e4e4f0;--mu:#8b8ba0;--bd:#252545;--ub:#7c5cfc;--ab:#1e1e40;--rd:14px;--ok:#22c55e;--wn:#f59e0b;--er:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font:14px/1.7 system-ui,sans-serif;height:100vh;display:flex;background:var(--bg);color:var(--tx);overflow:hidden}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:rgba(255,255,255,.03);border-radius:999px}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(124,92,252,.8),rgba(167,139,250,.6));border-radius:999px;border:2px solid rgba(13,13,26,.85)}::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(124,92,252,1),rgba(167,139,250,.85))}*{scrollbar-color:rgba(124,92,252,.9) rgba(255,255,255,.04);scrollbar-width:thin}
+.sidebar{width:240px;background:var(--sdb);display:flex;flex-direction:column;border-right:1px solid var(--bd);flex-shrink:0}
+.sidebar h3{padding:18px 16px 12px;font-size:16px;font-weight:700;color:var(--a2);letter-spacing:.5px}
+.sidebar h3 span{font-size:11px;color:var(--mu);font-weight:400;margin-left:4px}
+#btn-new{margin:0 12px 8px;padding:10px 0;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s}
+#btn-new:hover{filter:brightness(1.15)}
+#session-list{flex:1;overflow-y:auto;padding:4px 8px}
+#session-list .sess{display:flex;align-items:center;padding:10px 10px 10px 12px;cursor:pointer;border-radius:10px;margin:3px 0;font-size:13px;color:var(--mu);transition:all .15s;gap:8px}
+#session-list .sess:hover{background:rgba(124,92,252,.1);color:var(--tx)}
+#session-list .sess.active{background:rgba(124,92,252,.18);color:#fff;font-weight:600}
+#session-list .sess .dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0}
+#session-list .sess .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#session-list .sess .tools{display:flex;align-items:center;gap:4px;flex-shrink:0;opacity:0;transition:opacity .15s}
+#session-list .sess:hover .tools{opacity:1}
+#session-list .sess .edit,#session-list .sess .del{width:22px;height:22px;line-height:22px;text-align:center;border-radius:6px;font-size:12px;cursor:pointer;flex-shrink:0;user-select:none}
+#session-list .sess .edit{color:var(--a2)}
+#session-list .sess .edit:hover{background:rgba(124,92,252,.16);color:#fff}
+#session-list .sess .del{color:var(--mu)}
+#session-list .sess .del:hover{background:var(--er);color:#fff}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.header{padding:13px 20px;background:var(--srf);border-bottom:1px solid var(--bd);font-size:13px;font-weight:600;color:var(--a2);display:flex;align-items:center;gap:8px}
+.header .st{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#chat-box{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:10px;scrollbar-gutter:stable both-edges}
+.msg-w{display:flex;flex-direction:column;animation:fadeIn .25s ease}
+.msg-w.user{align-items:flex-end}.msg-w.asst{align-items:flex-start}
+.msg{max-width:80%;padding:10px 15px;border-radius:var(--rd);line-height:1.7;font-size:14px;word-wrap:break-word}
+.msg.asst{background:var(--ab);border-bottom-left-radius:5px}
+.msg.user{background:var(--ub);border-bottom-right-radius:5px}
+.msg-tm{font-size:10px;color:var(--mu);margin:2px 5px 0}
+
+/* workflow msg styles */
+.msg-wf{border-left:3px solid var(--ac);background:rgba(124,92,252,.08);padding:8px 14px;border-radius:0 var(--rd) var(--rd) 0;font-size:13px;max-width:90%}
+.msg-wf.ok{border-left-color:var(--ok)}
+.msg-wf.warn{border-left-color:var(--wn)}
+.msg-wf.section{border-left-color:var(--a2);font-weight:700;font-size:14px}
+.msg-wf.interrupt{border-left-color:var(--er);background:rgba(248,113,113,.1);padding:12px 16px}
+.msg-wf.log{border-left-color:#5b7cff;background:rgba(91,124,255,.08);padding:8px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}
+.msg-wf.report{border:2px solid var(--a2);border-radius:var(--rd);padding:16px;background:rgba(124,92,252,.05);font-size:13px}
+.msg-wf .wfi{margin-bottom:8px}
+.msg-wf .wfi input{width:100%;margin-top:6px;padding:8px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:14px;outline:none}
+.msg-wf .wfi button{margin-top:6px;padding:6px 16px;background:var(--ac);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+
+.msg.asst p{margin:3px 0}
+.msg.asst code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px}
+.msg.asst pre{background:#0a0a18;padding:14px;border-radius:8px;overflow-x:auto;font-size:12px;line-height:1.5;margin:8px 0}
+.msg.asst pre code{background:none;padding:0}
+.msg.asst table{border-collapse:collapse;margin:6px 0;width:100%}
+.msg.asst th,.msg.asst td{border:1px solid var(--bd);padding:5px 10px;font-size:13px}
+.msg.asst th{background:rgba(124,92,252,.15)}
+.msg.asst ul,.msg.asst ol{padding-left:22px;margin:4px 0}
+.msg.asst blockquote{border-left:3px solid var(--ac);padding-left:12px;color:var(--mu);margin:6px 0}
+.msg.asst a{color:var(--a2)}
+.msg.asst strong{color:#fff}
+.msg.asst img{max-width:100%;border-radius:6px;margin:6px 0}
+.img-broken{color:var(--er);font-size:12px;display:inline-block;padding:4px 8px;background:rgba(248,113,113,.1);border-radius:4px}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-8px);opacity:1}}
+.input-bar{display:flex;padding:12px 20px;background:var(--srf);border-top:1px solid var(--bd);gap:10px;align-items:flex-end}
+.input-bar textarea{flex:1;padding:12px 16px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);resize:none;font-size:14px;line-height:1.55;min-height:46px;max-height:220px;overflow-y:auto;outline:none;transition:border-color .2s,box-shadow .2s,height .08s ease}
+.input-bar textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(124,92,252,.15)}
+.input-bar button{padding:10px 22px;background:var(--ac);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s;white-space:nowrap;height:46px}
+.input-bar button:hover{filter:brightness(1.15)}
+.input-bar button:disabled{opacity:.35;cursor:default}
+.input-bar button.run-btn{background:var(--ok)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.stream-cursor::after{content:'▊';animation:blink .8s infinite;color:var(--a2)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── Right sidebar: output file browser ───────────────────────── */
+.rightbar{width:300px;background:var(--sdb);display:flex;flex-direction:column;border-left:1px solid var(--bd);flex-shrink:0}
+.rightbar h3{padding:18px 16px 12px;font-size:16px;font-weight:700;color:var(--a2);letter-spacing:.5px;margin:0;display:flex;align-items:center;gap:8px}
+.rightbar h3 .rb-actions{margin-left:auto;display:flex;gap:4px}
+.rightbar h3 .rb-actions button{width:24px;height:24px;line-height:1;background:transparent;border:1px solid var(--bd);color:var(--mu);border-radius:6px;cursor:pointer;font-size:14px;transition:all .15s}
+.rightbar h3 .rb-actions button:hover{color:var(--tx);border-color:var(--ac)}
+#file-tree{flex:1;overflow-y:auto;padding:6px 8px 12px;font-size:12.5px}
+.fb-empty{padding:24px 12px;color:var(--mu);text-align:center;font-size:12px;line-height:1.6}
+.fb-empty code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;font-size:11.5px}
+.fb-row{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;color:var(--mu);transition:all .12s;user-select:none;line-height:1.4}
+.fb-row:hover{background:rgba(124,92,252,.1);color:var(--tx)}
+.fb-row.fb-loading{opacity:.55;cursor:wait}
+.fb-row .ic{width:16px;flex-shrink:0;text-align:center;font-size:12px;line-height:1;color:var(--a2)}
+.fb-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fb-row .sz{font-size:10.5px;color:var(--mu);font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:6px}
+.fb-row.fb-dir .ic{color:var(--a2)}
+.fb-children{margin-left:14px;border-left:1px dashed rgba(124,92,252,.18);padding-left:0}
+.fb-children.collapsed{display:none}
+
+/* File action popover */
+.fb-popover{position:fixed;z-index:1500;background:var(--srf);border:1px solid var(--bd);border-radius:10px;padding:6px;min-width:200px;box-shadow:0 8px 28px rgba(0,0,0,.55);font-size:13px}
+.fb-popover .fb-action{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;color:var(--tx);transition:background .12s}
+.fb-popover .fb-action:hover{background:rgba(124,92,252,.18)}
+.fb-popover .fb-action .act-ic{width:18px;text-align:center;color:var(--a2)}
+.fb-popover .fb-action .act-lbl{flex:1}
+.fb-popover .fb-action .act-meta{font-size:11px;color:var(--mu)}
+
+/* Preview modal */
+.fb-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:2000}
+.fb-modal{width:780px;max-width:96%;max-height:84vh;background:var(--srf);border-radius:12px;border:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.fb-modal-head{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:13px}
+.fb-modal-head .fb-path{flex:1;color:var(--tx);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fb-modal-head .fb-meta{color:var(--mu);font-size:11.5px}
+.fb-modal-head button{padding:5px 10px;background:transparent;border:1px solid var(--bd);color:var(--mu);border-radius:6px;cursor:pointer;font-size:12px;transition:all .15s}
+.fb-modal-head button:hover{color:var(--tx);border-color:var(--ac)}
+.fb-modal-body{flex:1;overflow:auto;padding:14px 18px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <h3>AutoMD <span>v2</span></h3>
+  <button id="btn-new" onclick="newSession()">+ 新建会话</button>
+  <div id="session-list"></div>
+</div>
+<div class="main">
+  <div class="header"><div class="st"></div><span id="header-title">AutoMD Chat</span></div>
+    <button id="btn-settings" title="设置" style="margin-left:auto;margin-right:18px;padding:6px 10px;background:transparent;border:1px solid var(--bd);color:var(--mu);border-radius:8px;cursor:pointer">⚙ 设置</button>
+  <div id="chat-box"></div>
+  <div class="input-bar">
+    <textarea id="input" rows="1" placeholder="输入消息... (Enter 发送)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
+    <button id="btn-send" onclick="send()">发送</button>
+  </div>
+</div>
+<div class="rightbar">
+  <h3>
+    <span>📂 输出文件</span>
+    <span class="rb-actions">
+      <button id="btn-fb-refresh" title="刷新">⟳</button>
+    </span>
+  </h3>
+  <div id="file-tree"></div>
+</div>
+<script>
+let curSid=null,msgs={},streaming=false,busy=false,ws=null,interruptResolve=null;
+const $=id=>document.getElementById(id);
+console.log('[AutoMD] DOMPurify loaded, version:', window.DOMPurify && DOMPurify.version);
+
+// 🔧 方案 A: LLM 直接输出 HTML, DOMPurify 清洗后插入 DOM。
+//    之前的 markdown 流水线(preprocess / 表格修复 / marked)全部废弃。
+const _ALLOWED_HTML_TAGS = [
+  'h1','h2','h3','h4','h5','h6',
+  'p','br','hr',
+  'strong','em','b','i','u','s','sub','sup',
+  'ul','ol','li',
+  'table','thead','tbody','tr','th','td',
+  'code','pre','blockquote',
+  'a','img',
+  'span','div',
+];
+const _ALLOWED_HTML_ATTRS = ['href','src','alt','title','class'];
+
+function renderAssistantHtml(text){
+  // DOMPurify 不可用 / 抛错时, 至少输出可读的纯文本(保留换行)
+  const safeFallback = (reason) => {
+    console.error('[renderAssistantHtml] falling back to plain text. reason:', reason, 'input len:', text.length);
+    return `<div style="white-space:pre-wrap;word-break:break-word;font-family:inherit">${escHtml(String(text || ''))}</div>`;
+  };
+
+  if(typeof window.DOMPurify === 'undefined'){
+    return safeFallback('DOMPurify is undefined (CDN load failed?)');
+  }
+
+  try{
+    const clean = DOMPurify.sanitize(String(text || ''), {
+      ALLOWED_TAGS: _ALLOWED_HTML_TAGS,
+      ALLOWED_ATTR: _ALLOWED_HTML_ATTRS,
+      // 允许 a 标签的 target/_rel, 但禁用 javascript: 协议
+      ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|ftp|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    });
+    return clean || safeFallback('DOMPurify returned empty string');
+  }catch(e){
+    return safeFallback('DOMPurify threw: ' + (e && e.message || e));
+  }
+}
+
+// --- Settings JS ---
+function initSettings(){
+  const btn = $('btn-settings');
+  if(btn) btn.addEventListener('click', openSettings);
+  loadTheme();
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(bindThemeTiles, 0);
+  } else {
+    document.addEventListener('DOMContentLoaded', bindThemeTiles);
+  }
+}
+
+function openSettings(){
+  const modal = $('settings-modal');
+  if(!modal) return;
+  modal.style.display='flex';
+}
+
+function closeSettings(){
+  const modal = $('settings-modal'); if(modal) modal.style.display='none';
+}
+
+// .env editor removed: this UI intentionally only manages themes now.
+
+const THEMES = {
+  default: {"--bg":"#0d0d1a","--srf":"#151530","--sdb":"#111128","--ac":"#7c5cfc","--a2":"#a78bfa","--tx":"#e4e4f0","--mu":"#8b8ba0","--bd":"#252545","--ub":"#7c5cfc","--ab":"#1e1e40"},
+  solarized: {"--bg":"#002b36","--srf":"#073642","--sdb":"#002a2e","--ac":"#b58900","--a2":"#cb4b16","--tx":"#839496","--mu":"#586e75","--bd":"#073642","--ub":"#268bd2","--ab":"#073642"},
+  midnight: {"--bg":"#071428","--srf":"#0b1f3a","--sdb":"#061428","--ac":"#4cc9f0","--a2":"#80deea","--tx":"#e6f7ff","--mu":"#9fb6c9","--bd":"#0b2a4b","--ub":"#4cc9f0","--ab":"#052233"},
+  warm: {"--bg":"#1b1512","--srf":"#2a211d","--sdb":"#191413","--ac":"#ff7b54","--a2":"#ffad69","--tx":"#fff6ec","--mu":"#d1bfb6","--bd":"#2b1f1b","--ub":"#ff7b54","--ab":"#2b1f1b"},
+  soft: {"--bg":"#f5f6f7","--srf":"#ffffff","--sdb":"#efefef","--ac":"#6b7280","--a2":"#9ca3af","--tx":"#0f172a","--mu":"#6b7280","--bd":"#e6e7ea","--ub":"#6b7280","--ab":"#d1d5db"}
+};
+
+function applyTheme(name){
+  const t = THEMES[name]||THEMES['default'];
+  for(const k in t) document.documentElement.style.setProperty(k,t[k]);
+  localStorage.setItem('autodm_theme', name);
+  // update selection UI and preview
+  try{ updateThemeSelection(name); updateThemePreview(name); }catch(e){}
+}
+
+function loadTheme(){
+  const name = localStorage.getItem('autodm_theme')||'default';
+  applyTheme(name);
+}
+
+function resetTheme(){
+  localStorage.removeItem('autodm_theme');
+  applyTheme('default');
+}
+
+function updateThemeSelection(name){
+  const tiles = document.querySelectorAll('.theme-tile');
+  tiles.forEach(t=>{
+    if(t.dataset.theme===name) t.style.outline='3px solid rgba(124,92,252,0.9)';
+    else t.style.outline='none';
+  });
+}
+
+function updateThemePreview(name){
+  const preview = $('theme-preview');
+  if(!preview) return;
+  const t = THEMES[name]||THEMES['default'];
+  preview.style.background = t['--srf'] || 'var(--srf)';
+  preview.style.color = t['--tx'] || 'var(--tx)';
+  preview.textContent = `已选择：${name}`;
+}
+
+function bindThemeTiles(){
+  const tiles = document.querySelectorAll('.theme-tile');
+  tiles.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      const name = t.dataset.theme;
+      applyTheme(name);
+    });
+  });
+  // Initialize selection
+  const cur = localStorage.getItem('autodm_theme')||'default';
+  updateThemeSelection(cur);
+  updateThemePreview(cur);
+}
+// --- Initialize ---
+initSettings();
+
+// Catch broken output images and replace with error placeholder
+document.addEventListener('error',function(e){if(e.target.tagName==='IMG'&&e.target.src.includes('/api/output/')){e.target.outerHTML='<span class="img-broken">[图片加载失败: '+escHtml(e.target.src)+']</span>'}},true);
+
+async function newSession(){ $('btn-new').disabled=true;try{const r=await fetch('/api/sessions',{method:'POST'});const d=await r.json();curSid=d.session_id;msgs[curSid]=[];addMsg(curSid,'asst',d.greeting);renderSidebar();selectSession(curSid)}finally{$('btn-new').disabled=false}}
+async function loadSessions(){
+  try{
+    const r = await fetch('/api/sessions');
+    const ids = await r.json();
+    console.log('loadSessions: got', ids.length, 'sessions:', ids);
+    for(const sid of ids){
+      const mr = await fetch('/api/sessions/'+sid+'/messages');
+      const raw = await mr.json();
+      msgs[sid] = normalizeLoadedMessages(raw);
+      console.log('session', sid, 'loaded', msgs[sid].length, 'messages');
+      if(!curSid) curSid = sid;
+    }
+    console.log('curSid:', curSid, 'msgs keys:', Object.keys(msgs));
+    if(!curSid) await newSession(); else { renderSidebar(); selectSession(curSid); }
+  }catch(e){ console.error('loadSessions failed:', e); await newSession(); }
+}
+function normalizeLoadedMessages(arr){
+  if(!Array.isArray(arr)) return arr || [];
+  return arr.map(m=>{
+    try{
+      // If message already has frontend role, keep it
+      if(m.role) return m;
+      const mm = {};
+      // Map common fields
+      mm.content = m.content ?? m.text ?? m.message ?? '';
+      mm.time = m.time ?? m.timestamp ?? '';
+      // Map backend "type" to frontend role
+      const t = (m.type||'').toLowerCase();
+      if(t==='human' || t==='user') mm.role = 'user';
+      else if(t==='ai' || t==='assistant') mm.role = 'asst';
+      else mm.role = m.role || 'asst';
+      // Preserve workflow flag if present
+      if(m._wf !== undefined) mm._wf = m._wf;
+      if(m.wf) mm._wf = m.wf;
+      // Preserve pending flag
+      if(m._pending) mm._pending = m._pending;
+      return mm;
+    }catch(e){return m}
+  }).filter(m=>{
+    const c = (m&&m.content)||'';
+    return !c.startsWith('请基于以上对话和工具结果，直接给出最终回复。不要尝试调用工具。');
+  });
+}
+function getSessionAlias(sid){try{return localStorage.getItem('autodm_alias_'+sid)||''}catch(e){return ''}}
+function setSessionAlias(sid,name){try{if(name)localStorage.setItem('autodm_alias_'+sid,name);else localStorage.removeItem('autodm_alias_'+sid)}catch(e){}}
+function promptRenameSession(sid){const current=getSessionAlias(sid)||getSessionDefaultName(sid);const name=prompt('请输入会话显示名称（仅本地显示，不会修改 session_id）',current);if(name===null)return;setSessionAlias(sid,name.trim());renderSidebar();if(sid===curSid)$('header-title').textContent=`对话 — ${getSessionAlias(sid)||sid}`}
+function getSessionDefaultName(sid){let n='新会话';for(const m of msgs[sid]||[]){if(m.role==='user'){n=m.content.replace(/\n/g,' ').trim().slice(0,24)||'新会话';break}}return n}
+function renderSidebar(){$('session-list').innerHTML=Object.keys(msgs).map(sid=>{const n=getSessionAlias(sid)||getSessionDefaultName(sid);return`<div class="sess ${sid===curSid?'active':''}" onclick="selectSession('${sid}')"><span class="dot"></span><span class="name" title="${escHtml(n)}">${escHtml(n)}</span><span class="tools"><span class="edit" title="重命名" onclick="event.stopPropagation();promptRenameSession('${sid}')">✎</span><span class="del" title="删除" onclick="event.stopPropagation();delSession('${sid}')">×</span></span></div>`}).join('')}
+async function delSession(sid){if(!confirm('删除会话 '+sid+' ？'))return;await fetch('/api/sessions/'+sid,{method:'DELETE'});delete msgs[sid];if(curSid===sid){const ids=Object.keys(msgs);curSid=ids.length?ids[0]:null}if(!curSid)await newSession();else{renderSidebar();selectSession(curSid)}}
+function selectSession(sid){curSid=sid;renderSidebar();$('header-title').textContent=`对话 — ${getSessionAlias(sid)||sid}`;renderChat();setTimeout(()=>autoResizeInput(),0)}
+function addMsg(sid,role,content,t){if(!msgs[sid])msgs[sid]=[];const m={role,content,time:t||new Date().toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit'})};if(role.startsWith('wf'))m._wf=role.split('_').slice(1).join('_');msgs[sid].push(m)}
+function renderChat(){
+  const box=$('chat-box');
+  const list=msgs[curSid]||[];
+  const irq=$('_irq_in'); const saved=irq?irq.value:'';
+  box.innerHTML = list.map(m=>renderMsg(m)).join('');
+  if(saved){const ni=$('_irq_in');if(ni){ni.value=saved;ni.focus()}}
+  box.scrollTop = box.scrollHeight;
+}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function renderMsg(m){
+  try{
+    if(m._wf!==undefined){
+      const w=m._wf||'step';
+      const plain=`<div style="white-space:pre-wrap;word-break:break-word">${escHtml(m.content)}</div>`;
+      return`<div class="msg-wf ${w}">${w==='interrupt'&&m._pending?`<div class="wfi">${plain}<input id="_irq_in" placeholder="输入回复... (Enter 提交)" onkeydown="if(event.key==='Enter')resolveInterrupt()"><button onclick="resolveInterrupt()">提交</button></div>`:plain}</div><div class="msg-tm">${m.time||''}</div>`;
+    }
+    const isAssistant=m.role==='asst'||m.role==='assistant';
+    const c=m.role==='user'?'user':'asst',body=isAssistant?renderAssistantHtml(String(m.content||'')):escHtml(String(m.content||''));
+    return`<div class="msg-w ${c}"><div class="msg ${c}">${body}</div><div class="msg-tm">${m.time||''}</div></div>`;
+  }catch(e){console.error('renderMsg failed:',e,m);return`<div class="msg-w asst"><div class="msg asst" style="color:var(--er)">[渲染失败] ${escHtml(String(m.content||'').slice(0,100))}</div></div>`}
+}
+function resolveInterrupt(){const inp=$('_irq_in');if(inp&&interruptResolve){interruptResolve(inp.value||'skip');interruptResolve=null}}
+function scrollBot(){const b=$('chat-box');b.scrollTop=b.scrollHeight}
+function autoResizeInput(){const ta=$('input');if(!ta)return;ta.style.height='auto';const h=Math.min(ta.scrollHeight,220);ta.style.height=h+'px';ta.style.overflowY=ta.scrollHeight>220?'auto':'hidden'}
+
+function appendWorkflowEvent(d){
+  if(d.type==='section'){
+    addMsg(curSid,'wf_section',d.text||'');
+  }else if(d.type==='step'){
+    addMsg(curSid,'wf_step',`**${d.label||''}**  ${d.detail||''}`.trim());
+  }else if(d.type==='log'){
+    addMsg(curSid,'wf_log',d.text||'');
+  }else if(d.type==='interrupt_echo'){
+    addMsg(curSid,'wf_log',d.text||`后端收到回复: ${d.value||''}`);
+  }else if(d.type==='interrupt'){
+    const reply=d.reply?`\n\n> 回复: **${d.reply}**`:(d.auto?'\n\n> 自动回复: **skip**':'');
+    addMsg(curSid,'wf_interrupt',(d.text||'')+reply);
+  }else if(d.type==='report'){
+    const st=d.state||{};let txt='### 执行报告\n\n';
+    for(const[k,v]of Object.entries(st)) if(v) txt+=`- **${k}**: ${typeof v==='string'?v.slice(-80):v}\n`;
+    addMsg(curSid,'wf_report',txt);
+  }
+  renderChat();
+  scrollBot();
+}
+
+// ── Chat streaming ──
+async function send(){
+  if(streaming||busy)return;
+  const inp=$('input'),msg=inp.value.trim();if(!msg||!curSid)return;inp.value='';inp.style.height='auto';
+  addMsg(curSid,'user',msg);renderChat();$('btn-send').disabled=true;
+  streaming=true;
+  const bid='_b'+Date.now();
+  $('chat-box').insertAdjacentHTML('beforeend',`<div id="${bid}" class="msg-w asst"><div class="msg asst stream-cursor"></div></div>`);scrollBot();
+  let full='';
+  let workflowLaunched=false;
+  try{
+    const r=await fetch(`/api/chat/${curSid}/stream`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+    const reader=r.body.getReader(),d=new TextDecoder();let buf='';
+    while(true){const{done,value}=await reader.read();if(done)break;buf+=d.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const data=line.slice(5).trim();if(data==='[DONE]'){const el=$(bid);if(el)el.querySelector('.msg').classList.remove('stream-cursor');break}try{const j=JSON.parse(data);if(j.type==='assistant_token'){full+=j.token||'';const el=$(bid);if(el)el.querySelector('.msg').innerHTML=renderAssistantHtml(full)}else if(j.type==='workflow_request'){full=j.text||'已开始执行工作流，请在下方工作流面板查看。';const el=$(bid);if(el)el.querySelector('.msg').innerHTML=renderAssistantHtml(full);if(!workflowLaunched){workflowLaunched=true;runWorkflow(j.raw_task||'',false)}}else if(j.type==='section'||j.type==='step'||j.type==='interrupt'||j.type==='report'){appendWorkflowEvent(j)}else if(j.type==='assistant_final'){full=j.text||full;const el=$(bid);if(el)el.querySelector('.msg').innerHTML=renderAssistantHtml(full)}else if(j.token){full+=j.token||'';const el=$(bid);if(el)el.querySelector('.msg').innerHTML=renderAssistantHtml(full)}}catch(e){}}scrollBot()}
+  }catch(e){full='请求失败: '+e.message}
+  finally{streaming=false;$('btn-send').disabled=false;if(full){addMsg(curSid,'asst',full);renderChat();renderSidebar()}}
+}
+
+// ── WebSocket workflow ──
+async function runWorkflow(rawTask, showStart=true){
+  if(busy)return;busy=true;$('btn-send').disabled=true;
+  if(showStart){addMsg(curSid,'wf_section','**开始执行**');renderChat();}
+  // 🆕 总结 LLM 流式显示用的局部状态
+  let summaryAcc = '';
+  let summaryId = null;
+  ws=new WebSocket(`ws://${location.host}/ws/run/${curSid}`);
+  ws.onopen=()=>ws.send(JSON.stringify({raw_task:rawTask}));
+  ws.onmessage=(e)=>{
+    try{const d=JSON.parse(e.data);
+      if(d.type==='section'){
+        addMsg(curSid,'wf_section',d.text);scrollBot();
+      }else if(d.type==='step'){
+        addMsg(curSid,'wf_step',`**${d.label}**  ${d.detail||''}`);renderChat();scrollBot();
+      }else if(d.type==='log'){
+        addMsg(curSid,'wf_log',d.text||'');renderChat();scrollBot();
+      }else if(d.type==='interrupt_echo'){
+        addMsg(curSid,'wf_log',d.text||`后端收到回复: ${d.value||''}`);renderChat();scrollBot();
+      }else if(d.type==='interrupt'){
+        addMsg(curSid,'wf_interrupt',d.text);
+        msgs[curSid][msgs[curSid].length-1]._pending=true;
+        renderChat();scrollBot();const inp=$('_irq_in');if(inp)inp.focus();
+      }else if(d.type==='report'){
+        const st=d.state||{};
+        // 🆕 优先用 final_report 字段 (chat.py 后端在 common.py 填, 完整执行报告)
+        let txt='';
+        if(st.final_report && st.final_report.trim()){
+          txt = st.final_report;
+        }else{
+          // 兜底: 列举 truthy 字段
+          txt='### 执行报告\n\n';
+          for(const [gk,gv] of Object.entries(st)){
+            if(gv) txt += `- **${gk}**: ${(typeof gv==='string'?gv:JSON.stringify(gv)).slice(-200)}\n`;
+          }
+        }
+        addMsg(curSid,'wf_report',txt);
+        addMsg(curSid,'wf_step','✅ **流程完成**');renderChat();scrollBot();
+      }else if(d.type==='assistant'){
+        addMsg(curSid,'asst',d.text||'');renderChat();scrollBot();
+      }else if(d.type==='summary_token'){
+        // 🆕 流式累加: 第一个 token 创建 div, 后续 token 累加
+        summaryAcc += (d.token||'');
+        if(!summaryId){
+          summaryId = '_sum'+Date.now();
+          $('chat-box').insertAdjacentHTML('beforeend',
+            `<div id="${summaryId}" class="msg-w asst"><div class="msg asst stream-cursor"></div></div>`);
+        }
+        const el = $(summaryId);
+        if(el) el.querySelector('.msg').innerHTML = renderAssistantHtml(summaryAcc);
+        scrollBot();
+      }else if(d.type==='summary_done'){
+        // 总结完成, 落定
+        if(summaryId){
+          const el = $(summaryId);
+          if(el) el.querySelector('.msg').classList.remove('stream-cursor');
+          // 持久化到历史
+          if(summaryAcc){addMsg(curSid,'asst',summaryAcc);}
+          summaryId = null; summaryAcc = '';
+        }
+        scrollBot();
+      }
+    }catch(ex){}
+  };
+  ws.onclose=()=>{busy=false;$('btn-send').disabled=false;renderChat();ws=null};
+  ws.onerror=()=>{busy=false;$('btn-send').disabled=false;addMsg(curSid,'asst','WebSocket 连接失败');renderChat()};
+}
+
+window.resolveInterrupt=function(){
+  const inp=$('_irq_in');if(!inp||!ws)return;
+  const val=inp.value.trim()||'skip';
+  ws.send(JSON.stringify({type:'user_input',value:val}));
+  const list=msgs[curSid];for(let i=list.length-1;i>=0;i--){if(list[i]._pending){list[i]._pending=false;list[i].content+='\n\n> 回复: **'+val+'**';break}}
+};
+
+$('input').addEventListener('input',autoResizeInput);
+autoResizeInput();
+
+// Wrapper: when LLM says "执行", detect and run workflow
+const origSend=send;
+send=async function(){
+  const inp=$('input'),msg=inp.value.trim();
+  // If user typed the raw_task directly and wants to execute
+  if(msg.startsWith('/run ')||msg.startsWith('/执行 ')){
+    const task=msg.replace(/^\/(?:run|执行)\s+/,'');
+    inp.value='';inp.style.height='auto';
+    addMsg(curSid,'user','/run '+task);renderChat();
+    runWorkflow(task);return;
+  }
+  origSend();
+};
+
+// ── Output file browser ────────────────────────────────────────
+const FB = {
+  sid: null,
+  expanded: new Set(),          // paths (relative to output/{sid}/) that are expanded
+  cache: new Map(),             // path → {items, ts}
+  loadingPaths: new Set(),
+  refreshTimer: null,
+};
+
+const FB_ICON_DIR = '📁';
+const FB_ICON_DIR_OPEN = '📂';
+const FB_ICON_FILE = '📄';
+// Specific icons for common MD file types
+const FB_ICONS = {
+  pdb: '🧬', pdbqt: '🧬',
+  prmtop: '⚛️', inpcrd: '⚛️', nc: '💧', crd: '⚛️', rst: '⚛️',
+  mol2: '🧪', frcmod: '🧪', off: '🧪', lib: '🧪',
+  png: '🖼️', jpg: '🖼️', jpeg: '🖼️', gif: '🖼️', svg: '🖼️',
+  pdf: '📕',
+  py: '🐍', sh: '🐚', ps1: '🐚', bat: '🐚', js: '📜', json: '📋', yml: '📋', yaml: '📋', toml: '📋',
+  log: '📋', txt: '📋', md: '📋', csv: '📊', tsv: '📊',
+  tar: '📦', gz: '📦', zip: '📦',
+};
+function fbIconFor(name, isDir, expanded) {
+  if (isDir) return expanded ? FB_ICON_DIR_OPEN : FB_ICON_DIR;
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  return FB_ICONS[ext] || FB_ICON_FILE;
+}
+function fbFmtSize(n) {
+  if (n == null) return '';
+  if (n < 1024) return n + ' B';
+  if (n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+  if (n < 1024*1024*1024) return (n/1024/1024).toFixed(1) + ' MB';
+  return (n/1024/1024/1024).toFixed(2) + ' GB';
+}
+function fbFmtTime(epoch) {
+  if (!epoch) return '';
+  const d = new Date(epoch * 1000);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return d.toLocaleTimeString('zh', {hour:'2-digit', minute:'2-digit'});
+  return d.toLocaleDateString('zh', {month:'2-digit', day:'2-digit'});
+}
+
+// Text files that can be previewed in the modal.
+// Keep in sync with server.py `binary_exts` — only include extensions the
+// server will accept (not .prmtop/.inpcrd/.crd/.nc/.rst — those are binary
+// or large; the size cap is 1 MB server-side).
+const FB_TEXT_EXTS = new Set(['pdb','pdbqt','mol2','frcmod','off','log','txt','md','py','sh','ps1','bat','js','json','yml','yaml','toml','csv','tsv','xml','html','htm','css','svg','in']);
+// Files that can be loaded into PyMOL
+const FB_PYMOL_EXTS = new Set(['pdb','pdbqt','mol2','cif']);
+function fbIsTextPreviewable(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  return FB_TEXT_EXTS.has(ext);
+}
+function fbIsPymolLoadable(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  return FB_PYMOL_EXTS.has(ext);
+}
+
+async function fbFetch(path) {
+  const url = '/api/files?' + new URLSearchParams({sid: FB.sid || '', path: path || ''});
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+function fbRenderEmpty() {
+  const tree = $('file-tree');
+  if (!FB.sid) {
+    tree.innerHTML = '<div class="fb-empty">没有当前会话<br><span style="font-size:11px">新建会话后这里会显示工作流产物</span></div>';
+  } else {
+    tree.innerHTML = '<div class="fb-empty">还没有产物<br><span style="font-size:11px">跑个工作流 (例: <code>做个 1HX0 + 布洛芬的对接</code>)</span></div>';
+  }
+}
+
+function fbRenderRow(item, depth) {
+  const isDir = item.type === 'dir';
+  const expanded = FB.expanded.has(item.path);
+  const icon = fbIconFor(item.name, isDir, expanded);
+  const size = isDir ? '' : fbFmtSize(item.size);
+  const meta = isDir ? '' : `<span class="sz" title="最后修改: ${new Date(item.mtime*1000).toLocaleString('zh')}">${size}</span>`;
+  return `<div class="fb-row ${isDir ? 'fb-dir' : 'fb-file'}" data-path="${escHtml(item.path)}" data-type="${item.type}" data-name="${escHtml(item.name)}" data-depth="${depth}" style="padding-left:${4 + depth*14}px">
+    <span class="ic">${icon}</span>
+    <span class="nm">${escHtml(item.name)}</span>
+    ${meta}
+  </div>`;
+}
+
+async function fbRenderTree() {
+  const tree = $('file-tree');
+  if (!FB.sid) { fbRenderEmpty(); return; }
+
+  tree.innerHTML = '<div class="fb-empty">加载中...</div>';
+
+  // Recursive render: start from root, expand as needed
+  const container = document.createElement('div');
+  tree.innerHTML = '';
+  tree.appendChild(container);
+  try {
+    await fbRenderChildren(container, '', 0);
+  } catch (e) {
+    container.innerHTML = `<div class="fb-empty">加载失败: ${escHtml(e.message)}<br><span style="font-size:11px">可以点 ⟳ 重试</span></div>`;
+  }
+}
+
+async function fbRenderChildren(parentEl, dirPath, depth) {
+  if (FB.loadingPaths.has(dirPath)) return;
+  FB.loadingPaths.add(dirPath);
+  let data;
+  try {
+    data = await fbFetch(dirPath);
+  } catch (e) {
+    FB.loadingPaths.delete(dirPath);
+    throw e;
+  }
+  FB.loadingPaths.delete(dirPath);
+  FB.cache.set(dirPath, data);
+
+  if (!data.items || data.items.length === 0) {
+    if (depth === 0) {
+      parentEl.innerHTML = '<div class="fb-empty">这个会话还没有产物<br><span style="font-size:11px">让 LLM 跑个工作流</span></div>';
+    }
+    return;
+  }
+
+  // Render rows
+  for (const item of data.items) {
+    parentEl.insertAdjacentHTML('beforeend', fbRenderRow(item, depth));
+    if (item.type === 'dir') {
+      // Add collapsible children container
+      const childWrap = document.createElement('div');
+      childWrap.className = 'fb-children' + (FB.expanded.has(item.path) ? '' : ' collapsed');
+      childWrap.dataset.dirPath = item.path;
+      parentEl.appendChild(childWrap);
+      if (FB.expanded.has(item.path)) {
+        await fbRenderChildren(childWrap, item.path, depth + 1);
+      }
+    }
+  }
+}
+
+async function fbToggleDir(rowEl) {
+  const dirPath = rowEl.dataset.path;
+  const childWrap = rowEl.nextElementSibling;
+  // Guard: childWrap should be the .fb-children sibling
+  if (!childWrap || !childWrap.classList.contains('fb-children')) return;
+
+  const wasExpanded = FB.expanded.has(dirPath);
+  if (wasExpanded) {
+    FB.expanded.delete(dirPath);
+    childWrap.classList.add('collapsed');
+    // Update icon
+    const ic = rowEl.querySelector('.ic');
+    if (ic) ic.textContent = fbIconFor(rowEl.dataset.name, true, false);
+  } else {
+    FB.expanded.add(dirPath);
+    childWrap.classList.remove('collapsed');
+    const ic = rowEl.querySelector('.ic');
+    if (ic) ic.textContent = fbIconFor(rowEl.dataset.name, true, true);
+    // Lazy load if never loaded
+    if (childWrap.children.length === 0) {
+      const depth = parseInt(rowEl.dataset.depth || '0', 10) + 1;
+      try { await fbRenderChildren(childWrap, dirPath, depth); }
+      catch (e) { childWrap.innerHTML = `<div class="fb-empty" style="padding:8px 4px">加载失败: ${escHtml(e.message)}</div>`; }
+    }
+  }
+}
+
+function fbShowPopover(rowEl, evt) {
+  // Close existing
+  document.querySelectorAll('.fb-popover').forEach(p => p.remove());
+  const isDir = rowEl.dataset.type === 'dir';
+  const name = rowEl.dataset.name;
+  const path = rowEl.dataset.path;
+
+  const pop = document.createElement('div');
+  pop.className = 'fb-popover';
+  let html = '';
+  if (!isDir) {
+    if (fbIsTextPreviewable(name)) {
+      html += `<div class="fb-action" data-act="preview"><span class="act-ic">👁</span><span class="act-lbl">查看</span><span class="act-meta">文本</span></div>`;
+    }
+    if (fbIsPymolLoadable(name)) {
+      html += `<div class="fb-action" data-act="pymol"><span class="act-ic">🔬</span><span class="act-lbl">在 PyMOL 打开</span></div>`;
+    }
+    html += `<div class="fb-action" data-act="copy"><span class="act-ic">📋</span><span class="act-lbl">复制路径</span></div>`;
+    html += `<div class="fb-action" data-act="download"><span class="act-ic">💾</span><span class="act-lbl">下载</span></div>`;
+  } else {
+    html += `<div class="fb-action" data-act="copy"><span class="act-ic">📋</span><span class="act-lbl">复制路径</span></div>`;
+  }
+  pop.innerHTML = html;
+  document.body.appendChild(pop);
+  // Position near the row
+  const rect = rowEl.getBoundingClientRect();
+  pop.style.left = Math.min(window.innerWidth - 220, rect.right - 4) + 'px';
+  pop.style.top = (rect.bottom + 2) + 'px';
+
+  // Wire up actions
+  pop.querySelectorAll('.fb-action').forEach(act => {
+    act.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const which = act.dataset.act;
+      pop.remove();
+      fbHandleAction(which, name, path);
+    });
+  });
+
+  // Close on outside click
+  setTimeout(() => {
+    const closeFn = (ev) => {
+      if (!pop.contains(ev.target)) {
+        pop.remove();
+        document.removeEventListener('click', closeFn);
+      }
+    };
+    document.addEventListener('click', closeFn);
+  }, 0);
+}
+
+async function fbHandleAction(act, name, path) {
+  if (act === 'preview') {
+    await fbPreviewFile(name, path);
+  } else if (act === 'pymol') {
+    fbLoadInPymol(name, path);
+  } else if (act === 'copy') {
+    try {
+      await navigator.clipboard.writeText(`output/${FB.sid}/${path}`);
+      fbToast(`已复制: output/${FB.sid}/${path}`);
+    } catch (e) {
+      // Fallback for non-secure contexts
+      const ta = document.createElement('textarea');
+      ta.value = `output/${FB.sid}/${path}`;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); fbToast('已复制路径'); } catch (e2) {}
+      ta.remove();
+    }
+  } else if (act === 'download') {
+    window.location.href = `/api/output/${FB.sid}/${path}`;
+  }
+}
+
+async function fbPreviewFile(name, path) {
+  const r = await fetch('/api/file/text?' + new URLSearchParams({sid: FB.sid, path}));
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    // For binary/large files the server returns a download_url hint.
+    if (err.download_url) {
+      const want = confirm(`预览失败: ${err.error}\n\n要点 "确定" 下载, "取消" 关闭。`);
+      if (want) window.location.href = err.download_url;
+    } else {
+      fbToast('预览失败: ' + (err.error || r.status));
+    }
+    return;
+  }
+  const data = await r.json();
+  const mask = document.createElement('div');
+  mask.className = 'fb-modal-mask';
+  mask.innerHTML = `<div class="fb-modal" onclick="event.stopPropagation()">
+    <div class="fb-modal-head">
+      <span class="fb-path">${escHtml(path)}</span>
+      <span class="fb-meta">${fbFmtSize(data.size)}${data.truncated ? ' · 已截断' : ''}</span>
+      <button data-act="copy">复制全文</button>
+      <button data-act="download">下载</button>
+      <button data-act="close">关闭</button>
+    </div>
+    <div class="fb-modal-body">${escHtml(data.content)}</div>
+  </div>`;
+  document.body.appendChild(mask);
+  mask.addEventListener('click', (e) => { if (e.target === mask) mask.remove(); });
+  mask.querySelector('[data-act="close"]').addEventListener('click', () => mask.remove());
+  mask.querySelector('[data-act="download"]').addEventListener('click', () => {
+    window.location.href = `/api/output/${FB.sid}/${path}`;
+  });
+  mask.querySelector('[data-act="copy"]').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(data.content); fbToast('已复制全文到剪贴板'); }
+    catch (e) { fbToast('复制失败 (浏览器限制)'); }
+  });
+}
+
+function fbLoadInPymol(name, path) {
+  if (!FB.sid || !curSid) { fbToast('没有当前会话'); return; }
+  if (curSid !== FB.sid) { fbToast('会话不一致, 请先切换'); return; }
+  // Inject a hidden user message that the LLM will route to pymol_execute
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const cmd = ext === 'pdbqt' ? `load ${path}` : `load ${path}, ${name.split('.')[0]}`;
+  const userMsg = `[系统提示] 请调用 pymol_execute 工具加载这个文件: pymol_execute(["${cmd}"])`;
+  // Send via the same streaming endpoint
+  $('input').value = userMsg;
+  fbToast('已发送加载请求给 LLM');
+  send();
+  // Note: 进度文件会从 workflow 中获取, 实际 PyMOL 加载是 pymol_execute 工具
+}
+
+function fbToast(text) {
+  // Reuse the existing style: a simple bottom-center toast
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--srf);border:1px solid var(--bd);padding:10px 18px;border-radius:8px;font-size:13px;color:var(--tx);z-index:3000;box-shadow:0 4px 18px rgba(0,0,0,.45);animation:fadeIn .2s ease';
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+// Wire up clicks on file tree (delegated)
+function fbWireClicks() {
+  const tree = $('file-tree');
+  tree.addEventListener('click', async (e) => {
+    const row = e.target.closest('.fb-row');
+    if (!row) return;
+    if (row.dataset.type === 'dir') {
+      await fbToggleDir(row);
+    } else {
+      fbShowPopover(row, e);
+    }
+  });
+}
+
+// Refresh button
+$('btn-fb-refresh').addEventListener('click', () => {
+  FB.cache.clear();
+  fbRenderTree();
+  fbToast('已刷新');
+});
+
+// Hook into session change to refresh
+const origSelect = selectSession;
+selectSession = function(sid) {
+  origSelect(sid);
+  FB.sid = sid;
+  FB.expanded.clear();
+  FB.cache.clear();
+  fbRenderTree();
+};
+
+// Hook into session creation
+const origNewSession = newSession;
+newSession = async function() {
+  await origNewSession();
+  if (curSid) {
+    FB.sid = curSid;
+    fbRenderTree();
+  }
+};
+
+// Hook into workflow events: auto-refresh on step / report
+const _origAppendWorkflowEvent = appendWorkflowEvent;
+appendWorkflowEvent = function(d) {
+  _origAppendWorkflowEvent(d);
+  // Debounced refresh on file-changing events
+  if (d && (d.type === 'step' || d.type === 'report' || d.type === 'log')) {
+    if (FB.refreshTimer) clearTimeout(FB.refreshTimer);
+    FB.refreshTimer = setTimeout(() => {
+      // Only refresh the root, keep expanded set
+      FB.cache.clear();
+      fbRenderTree();
+    }, 800);
+  }
+};
+
+fbWireClicks();
+fbRenderTree();
+
+loadSessions();
+</script>
+
+<!-- Settings Modal (Theme only) -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;z-index:2000">
+  <div style="width:720px;max-width:96%;background:var(--srf);border-radius:12px;padding:18px;border:1px solid var(--bd);color:var(--tx);box-shadow:0 8px 30px rgba(0,0,0,.6)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <h3 style="margin:0;color:var(--a2)">界面主题</h3>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center"><button onclick="closeSettings()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mu)">关闭</button></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      <div style="flex:1;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start">
+        <div class="theme-tile" data-theme="default" style="width:140px;cursor:pointer">
+          <div style="height:84px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.04);box-shadow:0 6px 18px rgba(0,0,0,.45);background:linear-gradient(180deg,#7c5cfc,#a78bfa)"></div>
+          <div style="text-align:center;margin-top:8px;color:var(--tx)">默认（紫）</div>
+        </div>
+        <div class="theme-tile" data-theme="solarized" style="width:140px;cursor:pointer">
+          <div style="height:84px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.04);box-shadow:0 6px 18px rgba(0,0,0,.45);background:linear-gradient(180deg,#073642,#002b36)"></div>
+          <div style="text-align:center;margin-top:8px;color:var(--tx)">Solarized Dark</div>
+        </div>
+        <div class="theme-tile" data-theme="midnight" style="width:140px;cursor:pointer">
+          <div style="height:84px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.04);box-shadow:0 6px 18px rgba(0,0,0,.45);background:linear-gradient(180deg,#0b1f3a,#071428)"></div>
+          <div style="text-align:center;margin-top:8px;color:var(--tx)">Midnight Blue</div>
+        </div>
+        <div class="theme-tile" data-theme="warm" style="width:140px;cursor:pointer">
+          <div style="height:84px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.04);box-shadow:0 6px 18px rgba(0,0,0,.45);background:linear-gradient(180deg,#ff7b54,#ffad69)"></div>
+          <div style="text-align:center;margin-top:8px;color:var(--tx)">Warm Contrast</div>
+        </div>
+        <div class="theme-tile" data-theme="soft" style="width:140px;cursor:pointer">
+          <div style="height:84px;border-radius:10px;overflow:hidden;border:1px solid rgba(0,0,0,.04);box-shadow:0 6px 18px rgba(0,0,0,.08);background:linear-gradient(180deg,#ffffff,#f5f6f7)"></div>
+          <div style="text-align:center;margin-top:8px;color:var(--tx)">Soft Gray</div>
+        </div>
+      </div>
+      <div style="width:220px;flex-shrink:0">
+        <h4 style="margin:0 0 8px;color:var(--tx)">预览</h4>
+        <div id="theme-preview" style="height:180px;border-radius:10px;border:1px solid var(--bd);background:var(--srf);display:flex;align-items:center;justify-content:center;color:var(--tx);font-weight:600">页面预览</div>
+        <div style="margin-top:12px;text-align:center"><button onclick="resetTheme()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mu)">恢复默认</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

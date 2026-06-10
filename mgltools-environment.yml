@@ -1,0 +1,12 @@
+name: mgltools
+channels:
+  - conda-forge
+dependencies:
+  - python=2.7
+  - pip
+  - numpy=1.16.*
+  - scipy=1.2.*
+  - six
+  - tk
+  # Optional runtime helpers for legacy MGLTools modules.
+  - pillow
