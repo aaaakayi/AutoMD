@@ -44,6 +44,8 @@ AutoMD 把"自然语言任务 → 工具调用 → 失败自愈 → 报告生成
 ```bash
 # 1) 下载项目并且解压
 # 下载链接：
+# 百度网盘链接: https://pan.baidu.com/s/1yBn3f3-cOyNjDbTTge_f_g 提取码: 3r1e
+# 或者在项目的 Releases 下载对应的AutoMD.zip文件 
 # 解压到用户自己选择的目录下。
 
 # 2) 环境支持
